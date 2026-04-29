@@ -1,0 +1,7 @@
+lag-llama/lag-llama.ckpt
+jobs.db
+logs/
+node_modules/
+__pycache__/
+*.pyc
+experiments/
