@@ -1,0 +1,22 @@
+[launcher] job #26 — run — 2026-04-29T05:52:32.016Z
+[launcher] $ python run_wrapper.py --ckpt c:\users\alfre\lag-llama\lag-llama.ckpt --dataset australian_electricity_demand --num_samples 5 --num_series 2 --ckpt C:\Users\alfre\lag-llama\lag-llama.ckpt
+C:\Users\alfre\miniconda3\Lib\site-packages\lightning_fabric\__init__.py:40: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+[run] Loading dataset: australian_electricity_demand
+  Trying GluonTS dataset repository...
+  Loaded via GluonTS.
+[run] Prediction length: 60
+[run] Loading pretrained checkpoint: C:\Users\alfre\lag-llama\lag-llama.ckpt
+[run] Checkpoint loaded
+[run] Estimator created
+[run] Lightning module created
+[run] Transformation created
+[run] Predictor ready
+
+[run] Generating forecasts (num_samples=5)...
+[run] Total test instances: 5
+C:\Users\alfre\miniconda3\Lib\site-packages\gluonts\torch\util.py:205: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\python_variable_indexing.cpp:353.)
+  return a[idx]
+C:\Users\alfre\miniconda3\Lib\site-packages\gluonts\torch\util.py:205: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\python_variable_indexing.cpp:353.)
+  return a[idx]
+
+[CANCELLED] Duration: 19s

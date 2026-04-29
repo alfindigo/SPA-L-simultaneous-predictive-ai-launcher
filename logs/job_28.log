@@ -1,0 +1,11 @@
+[launcher] job #28 — run — 2026-04-29T05:53:44.491Z
+[launcher] $ python run_wrapper.py --ckpt c:\users\alfre\lag-llama\lag-llama.ckpt --dataset m3_monthly --num_samples 100 --ckpt C:\Users\alfre\lag-llama\lag-llama.ckpt --finetuned --context_length 48 b
+C:\Users\alfre\miniconda3\Lib\site-packages\lightning_fabric\__init__.py:40: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+usage: run_wrapper.py [-h] --dataset DATASET [--ckpt CKPT] [--model MODEL]
+                      [--finetuned] [--prediction_length PREDICTION_LENGTH]
+                      [--context_length CONTEXT_LENGTH]
+                      [--num_samples NUM_SAMPLES] [--num_series NUM_SERIES]
+                      [--device DEVICE]
+run_wrapper.py: error: unrecognized arguments: b
+
+[ERROR] Exited with code 2. Duration: 17s

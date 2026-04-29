@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Model Launcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080b0f;
+      --bg-panel: #0d1117;
+      --bg-input: #070a0e;
+      --border: #1e2530;
+      --border-hi: #2a3444;
+      --text: #cdd6e0;
+      --text-dim: #4a5568;
+      --text-muted: #7a8fa3;
+      --accent: #00d4ff;
+      --success: #00e89a;
+      --warn: #ffb347;
+      --error: #ff5555;
+      --train-col: #a78bfa;
+      --run-col: #34d399;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    header {
+      padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .tagline {
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline strong {
+      font-weight: 500;
+    }
+
+    .header-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    .status-pip {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .status-pip.ready {
+      background: var(--success);
+    }
+
+    .status-pip.busy {
+      background: var(--warn);
+      animation: pulse 1s infinite;
+    }
+
+    .status-pip.error {
+      background: var(--error);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 1rem 0 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-muted);
+    }
+
+    .nav-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .view {
+      display: none;
+      flex: 1;
+      padding: 1.5rem 0;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .view.active {
+      display: flex;
+    }
+
+    /* ── LIST ── */
+    .list-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      height: 36px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-hi);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 0 12px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .btn-new {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      background: rgba(0, 212, 255, 0.06);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-new:hover {
+      background: rgba(0, 212, 255, 0.12);
+      border-color: var(--accent);
+    }
+
+    .jobs-table-wrap {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .jobs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .jobs-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .jobs-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .jobs-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(30, 37, 48, 0.5);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .jobs-table tbody tr {
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .jobs-table tbody tr:hover {
+      background: rgba(0, 212, 255, 0.03);
+    }
+
+    .jobs-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .jobs-table td.model-cell {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .type-badge.train {
+      color: var(--train-col);
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+    }
+
+    .type-badge.run {
+      color: var(--run-col);
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-badge.running {
+      color: var(--warn);
+      background: rgba(255, 179, 71, 0.1);
+      border: 1px solid rgba(255, 179, 71, 0.2);
+    }
+
+    .status-badge.running::before {
+      background: var(--warn);
+      animation: pulse 1s infinite;
+    }
+
+    .status-badge.done {
+      color: var(--success);
+      background: rgba(0, 232, 154, 0.1);
+      border: 1px solid rgba(0, 232, 154, 0.2);
+    }
+
+    .status-badge.done::before {
+      background: var(--success);
+    }
+
+    .status-badge.failed {
+      color: var(--error);
+      background: rgba(255, 85, 85, 0.1);
+      border: 1px solid rgba(255, 85, 85, 0.2);
+    }
+
+    .status-badge.failed::before {
+      background: var(--error);
+    }
+
+    .status-badge.cancelled {
+      color: var(--text-dim);
+      background: rgba(74, 85, 104, 0.1);
+      border: 1px solid rgba(74, 85, 104, 0.2);
+    }
+
+    .status-badge.cancelled::before {
+      background: var(--text-dim);
+    }
+
+    .fail-cell {
+      color: var(--error);
+      font-size: 10px;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 2;
+    }
+
+    .list-footer {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn-refresh {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+    }
+
+    .btn-refresh:hover {
+      color: var(--accent);
+    }
+
+    /* ── JOB VIEW ── */
+    .job-view-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-back {
+      background: none;
+      border: 1px solid var(--border-hi);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-back:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .job-view-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .job-view-id {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      margin-left: auto;
+    }
+
+    .readonly-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0, 212, 255, 0.04);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .readonly-banner.show {
+      display: flex;
+    }
+
+    .readonly-banner .rb-badge {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .panel-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-left: auto;
+    }
+
+    .panel-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .path-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .path-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .path-input {
+      flex: 1;
+      height: 36px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-hi);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 0 10px;
+      transition: border-color 0.15s;
+    }
+
+    .path-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .path-input.valid {
+      border-color: var(--success);
+    }
+
+    .path-input.invalid {
+      border-color: var(--error);
+    }
+
+    .path-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .path-input[readonly] {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .btn-browse {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border-hi);
+      background: transparent;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .btn-browse:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-browse:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .path-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 6px 10px;
+      border-radius: 3px;
+      display: none;
+      margin-top: 2px;
+    }
+
+    .path-hint.show {
+      display: block;
+    }
+
+    .path-hint.ok {
+      color: var(--success);
+      background: rgba(0, 232, 154, 0.07);
+      border: 1px solid rgba(0, 232, 154, 0.2);
+    }
+
+    .path-hint.err {
+      color: var(--error);
+      background: rgba(255, 85, 85, 0.07);
+      border: 1px solid rgba(255, 85, 85, 0.2);
+    }
+
+    .extras-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .extras-input {
+      height: 32px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 0 10px;
+    }
+
+    .extras-input:focus {
+      outline: none;
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+
+    .extras-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .extras-input[readonly] {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .model-info {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(0, 212, 255, 0.04);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .model-info.show {
+      display: flex;
+    }
+
+    .info-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+    }
+
+    .info-chip span {
+      color: var(--accent);
+    }
+
+    .metrics-strip {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(0, 232, 154, 0.04);
+      border: 1px solid rgba(0, 232, 154, 0.15);
+      border-radius: 4px;
+    }
+
+    .metrics-strip.show {
+      display: flex;
+    }
+
+    .metric-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+    }
+
+    .metric-chip span {
+      color: var(--success);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      flex: 1;
+      height: 42px;
+      border-radius: 4px;
+      border: 1px solid;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-train {
+      color: var(--train-col);
+      border-color: rgba(167, 139, 250, 0.3);
+      background: rgba(167, 139, 250, 0.06);
+    }
+
+    .btn-train:hover:not(:disabled) {
+      background: rgba(167, 139, 250, 0.12);
+      border-color: var(--train-col);
+    }
+
+    .btn-run {
+      color: var(--run-col);
+      border-color: rgba(52, 211, 153, 0.3);
+      background: rgba(52, 211, 153, 0.06);
+    }
+
+    .btn-run:hover:not(:disabled) {
+      background: rgba(52, 211, 153, 0.12);
+      border-color: var(--run-col);
+    }
+
+    .btn-cancel {
+      flex: 0 0 auto;
+      padding: 0 16px;
+      color: var(--text-dim);
+      border-color: var(--border-hi);
+      background: transparent;
+    }
+
+    .btn-cancel:hover:not(:disabled) {
+      color: var(--error);
+      border-color: var(--error);
+    }
+
+    .progress-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-wrap.visible {
+      display: flex;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .progress-pct {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .progress-detail {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      transition: width 0.4s ease;
+    }
+
+    .log-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-head {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .log-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .btn-clear {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-clear:hover {
+      color: var(--text-muted);
+    }
+
+    .log-box {
+      background: #050709;
+      padding: 12px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--text-dim);
+      height: 340px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-break: break-all;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .log-box p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .log-box .sys {
+      color: #2a4a5e;
+      font-style: italic;
+    }
+
+    .log-box .out {
+      color: #5a8a6a;
+    }
+
+    .log-box .err {
+      color: #8a5a5a;
+    }
+
+    .log-box .done {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    .log-box .fail {
+      color: var(--error);
+    }
+
+    .log-box .sep {
+      color: var(--border-hi);
+      user-select: none;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer-right {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      gap: 16px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      min-width: 260px;
+      max-width: 400px;
+      padding: 14px 18px;
+      border-radius: 6px;
+      border: 1px solid;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transform: translateX(calc(100% + 24px));
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.done {
+      background: rgba(0, 30, 20, 0.97);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .toast.error {
+      background: rgba(30, 5, 5, 0.97);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .toast.warn {
+      background: rgba(30, 20, 0, 0.97);
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .toast-icon {
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .toast-body {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .toast-msg {
+      opacity: 0.75;
+      font-size: 11px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <div class="logo">AI Model Launcher</div>
+        <div class="tagline">Train. <strong>Run.</strong> Iterate.</div>
+      </div>
+      <div class="header-status">
+        <div><span class="status-pip" id="pip"></span><span id="status-label">idle</span></div>
+        <div id="clock">--:--:--</div>
+      </div>
+    </header>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-list" onclick="showView('list')">Job History</button>
+      <button class="nav-tab" id="tab-job" onclick="showView('job',null)">Launcher</button>
+    </div>
+
+    <!-- LIST -->
+    <div class="view active" id="view-list">
+      <div class="list-toolbar">
+        <input class="search-input" id="search-input" type="text" placeholder="Search model, dataset, type, status…" />
+        <button class="btn-new" onclick="showView('job',null)">+ New Job</button>
+      </div>
+      <div class="jobs-table-wrap">
+        <table class="jobs-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Duration</th>
+              <th>Started</th>
+              <th>Fail Reason</th>
+            </tr>
+          </thead>
+          <tbody id="jobs-tbody">
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">Loading…</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="list-footer">
+        <span id="jobs-count">—</span>
+        <button class="btn-refresh" onclick="loadJobs()">↻ refresh</button>
+      </div>
+    </div>
+
+    <!-- JOB VIEW -->
+    <div class="view" id="view-job">
+      <div class="job-view-header">
+        <button class="btn-back" onclick="showView('list')">← History</button>
+        <span class="job-view-title" id="job-view-title">New Job</span>
+        <span class="job-view-id" id="job-view-id"></span>
+      </div>
+
+      <div class="readonly-banner" id="readonly-banner">
+        <span class="rb-badge">READONLY</span>
+        <span>Viewing a past job. <a href="#" onclick="showView('job',null);return false;"
+            style="color:var(--accent)">Start a new job →</a></span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-label">Model</div>
+          <div class="panel-name" id="model-name">—</div>
+        </div>
+        <div class="panel-body">
+          <div>
+            <div class="path-label">Model folder</div>
+            <div class="path-row">
+              <input class="path-input" id="model-path" type="text" placeholder="/path/to/model-folder" />
+              <button class="btn-browse" id="browse-model">Browse</button>
+            </div>
+            <div class="path-hint" id="model-hint"></div>
+          </div>
+          <div class="model-info" id="model-info">
+            <div class="info-chip">train: <span id="info-train">—</span></div>
+            <div class="info-chip">run: <span id="info-run">—</span></div>
+            <div class="info-chip">dataset param: <span id="info-dparam">—</span></div>
+          </div>
+          <div>
+            <div class="path-label">Dataset file or folder</div>
+            <div class="path-row">
+              <input class="path-input" id="dataset-path" type="text" placeholder="dataset name or /path" />
+              <button class="btn-browse" id="browse-dataset-folder">Folder</button>
+              <button class="btn-browse" id="browse-dataset-file">File</button>
+            </div>
+          </div>
+          <div class="extras-row">
+            <div class="path-label">Extra args (optional)</div>
+            <input class="extras-input" id="extra-args" type="text" placeholder="--epochs 10 --lr 0.001" />
+          </div>
+          <div class="metrics-strip" id="metrics-strip">
+            <div class="metric-chip">status: <span id="metric-status">—</span></div>
+            <div class="metric-chip">duration: <span id="metric-duration">—</span></div>
+            <div id="metric-fail-wrap" style="display:none" class="metric-chip">
+              reason: <span id="metric-fail" style="color:var(--error)">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions" id="actions-bar">
+        <button class="btn-action btn-train" id="btn-train" disabled>Train</button>
+        <button class="btn-action btn-run" id="btn-run" disabled>Run</button>
+        <button class="btn-action btn-cancel" id="btn-cancel" disabled style="display:none">Cancel</button>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label" id="progress-label">Progress</span>
+          <span class="progress-pct" id="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-detail" id="progress-detail"></div>
+      </div>
+
+      <div class="panel log-panel">
+        <div class="log-head">
+          <span class="log-title">Output</span>
+          <button class="btn-clear" id="btn-clear">clear</button>
+        </div>
+        <div class="log-box" id="log-box">
+          <p class="sys">&gt; awaiting job…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-icon">✓</span>
+    <div class="toast-body">
+      <div class="toast-title" id="toast-title"></div>
+      <div class="toast-msg" id="toast-msg"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left" id="footer-job">no job running</div>
+    <div class="footer-right">
+      <span id="footer-poll">polling</span>
+      <span>port 5557</span>
+    </div>
+  </footer>
+
+  <script>
+    const BACKEND = "http://localhost:5557";
+
+    // ── state ──────────────────────────────────────────────────────────────────────
+    let viewingJobId = null;   // null = new job form; number = viewing/running a job
+    let modelValid = false;
+    let savedModelPath = "";
+    let savedDatasetPath = "";
+    let pollerHandle = null;   // setInterval handle for the active job poller
+    let logOffset = 0;      // bytes already displayed in the log box
+
+    // ── helpers ────────────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, c =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    }
+    function fmtMs(ms) {
+      if (!ms) return "—";
+      const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+      if (h > 0) return `${h}h ${m % 60}m`;
+      if (m > 0) return `${m}m ${s % 60}s`;
+      return `${s}s`;
+    }
+    function fmtDate(ts) {
+      if (!ts) return "—";
+      const d = new Date(ts);
+      return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + " " +
+        d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    }
+    function lineClass(line) {
+      if (line.startsWith("[DONE]")) return "done";
+      if (line.startsWith("[ERROR]")) return "fail";
+      if (line.startsWith("[CANCEL")) return "sys";
+      if (line.startsWith("[launcher]")) return "sys";
+      if (line.includes("DeprecationWarning") || line.includes("pkg_resources") ||
+        line.startsWith("WARNING") || /^\s{2,}/.test(line)) return "sys";
+      return "out";
+    }
+
+    // ── log box ────────────────────────────────────────────────────────────────────
+    const logBox = document.getElementById("log-box");
+
+    function appendLines(text) {
+      // Remove "awaiting" placeholder on first real content
+      const ph = logBox.querySelector(".sys");
+      if (ph && ph.textContent.includes("awaiting")) ph.remove();
+
+      text.split("\n").forEach(line => {
+        if (!line.trim()) return;
+        const p = document.createElement("p");
+        p.className = lineClass(line);
+        p.textContent = line;
+        logBox.appendChild(p);
+      });
+      // Keep max 500 lines
+      const all = logBox.querySelectorAll("p");
+      if (all.length > 500) [...all].slice(0, all.length - 500).forEach(l => l.remove());
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function renderFullLog(text) {
+      logBox.innerHTML = "";
+      if (!text) { logBox.innerHTML = '<p class="sys">&gt; no log</p>'; return; }
+      text.split("\n").forEach(line => {
+        if (!line.trim()) return;
+        const p = document.createElement("p");
+        p.className = lineClass(line);
+        p.textContent = line;
+        logBox.appendChild(p);
+      });
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    document.getElementById("btn-clear").addEventListener("click", () => {
+      logBox.innerHTML = '<p class="sys">&gt; cleared</p>';
+    });
+
+    // ── toast ──────────────────────────────────────────────────────────────────────
+    let toastTimer;
+    const toastEl = document.getElementById("toast");
+    toastEl.addEventListener("click", () => toastEl.classList.remove("show"));
+    function toast(kind, title, msg, ms = 8000) {
+      toastEl.className = `toast ${kind}`;
+      document.getElementById("toast-icon").textContent = kind === "done" ? "✓" : kind === "error" ? "✗" : "!";
+      document.getElementById("toast-title").textContent = title;
+      document.getElementById("toast-msg").textContent = msg || "";
+      toastEl.offsetWidth; toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      if (ms) toastTimer = setTimeout(() => toastEl.classList.remove("show"), ms);
+    }
+
+    // ── button / UI state machine ──────────────────────────────────────────────────
+    // Three modes:
+    //   new job   (viewingJobId === null)         → train+run enabled, cancel hidden
+    //   running   (viewingJobId set, pollerHandle) → cancel shown, train+run hidden
+    //   finished  (viewingJobId set, no poller)   → all buttons hidden
+    function syncButtons() {
+      const t = document.getElementById("btn-train");
+      const r = document.getElementById("btn-run");
+      const c = document.getElementById("btn-cancel");
+      const isNew = viewingJobId === null;
+      const isRunning = viewingJobId !== null && pollerHandle !== null;
+
+      if (isNew) {
+        t.style.display = ""; r.style.display = ""; c.style.display = "none";
+        t.disabled = !modelValid; r.disabled = !modelValid;
+      } else if (isRunning) {
+        t.style.display = "none"; r.style.display = "none";
+        c.style.display = ""; c.disabled = false;
+      } else {
+        // finished — hide everything
+        t.style.display = "none"; r.style.display = "none"; c.style.display = "none";
+      }
+    }
+
+    function setGlobalStatus(nRunning) {
+      const pip = document.getElementById("pip");
+      const label = document.getElementById("status-label");
+      const fj = document.getElementById("footer-job");
+      if (nRunning > 0) {
+        pip.className = "status-pip busy";
+        label.textContent = `${nRunning} running`;
+        fj.textContent = `${nRunning} job${nRunning > 1 ? "s" : ""} running…`;
+      } else {
+        pip.className = "status-pip ready";
+        label.textContent = "idle";
+        fj.textContent = "no job running";
+      }
+    }
+
+    // ── polling engine ─────────────────────────────────────────────────────────────
+    // Called every 2s while a job is running.
+    // Fetches job status + incremental log + progress, updates UI.
+    // Stops itself when job is no longer running.
+    async function pollJob() {
+      if (viewingJobId === null) { stopPoller(); return; }
+      const id = viewingJobId;
+
+      try {
+        // Fetch status and incremental log in parallel
+        const [jobRes, logRes, progRes] = await Promise.all([
+          fetch(`${BACKEND}/ai/jobs/${id}`).then(r => r.json()),
+          fetch(`${BACKEND}/ai/jobs/${id}/log?offset=${logOffset}`).then(r => r.json()),
+          fetch(`${BACKEND}/ai/progress/${id}`).then(r => r.json()),
+        ]);
+
+        // Append any new log content
+        if (logRes.log) {
+          appendLines(logRes.log);
+          logOffset = logRes.size;
+        }
+
+        // Update progress bar
+        if (progRes.busy && progRes.percent > 0) {
+          document.getElementById("progress-wrap").classList.add("visible");
+          document.getElementById("progress-pct").textContent = `${Math.round(progRes.percent)}%`;
+          document.getElementById("progress-fill").style.width = `${progRes.percent}%`;
+          document.getElementById("progress-detail").textContent = progRes.detail || "";
+        }
+
+        // Update duration in metrics strip
+        if (jobRes.duration_ms) {
+          document.getElementById("metric-duration").textContent = fmtMs(jobRes.duration_ms);
+        }
+
+        // Job finished?
+        if (jobRes.status !== "running") {
+          stopPoller();
+
+          // Final UI update
+          document.getElementById("progress-wrap").classList.remove("visible");
+          document.getElementById("metric-status").textContent = jobRes.status;
+          document.getElementById("metric-duration").textContent = fmtMs(jobRes.duration_ms);
+          document.getElementById("metrics-strip").classList.add("show");
+
+          const statusEl = document.getElementById("metric-status");
+          statusEl.style.color =
+            jobRes.status === "done" ? "var(--success)" :
+              jobRes.status === "cancelled" ? "var(--text-dim)" : "var(--error)";
+
+          if (jobRes.fail_reason && jobRes.status !== "done") {
+            document.getElementById("metric-fail").textContent = jobRes.fail_reason;
+            document.getElementById("metric-fail-wrap").style.display = "";
+          }
+
+          // Show readonly banner now that job is done
+          document.getElementById("readonly-banner").classList.add("show");
+
+          toast(
+            jobRes.status === "done" ? "done" : jobRes.status === "cancelled" ? "warn" : "error",
+            jobRes.status === "done" ? "Job complete" : jobRes.status === "cancelled" ? "Job cancelled" : "Job failed",
+            `Duration: ${fmtMs(jobRes.duration_ms)}${jobRes.fail_reason ? " — " + jobRes.fail_reason : ""}`
+          );
+
+          syncButtons();
+          loadJobs(); // refresh list
+        }
+      } catch (_) { }
+    }
+
+    function startPoller(jobId) {
+      stopPoller();
+      viewingJobId = jobId;
+      logOffset = 0;
+      pollerHandle = setInterval(pollJob, 2000);
+      pollJob();   // immediate first tick
+      syncButtons();
+    }
+
+    function stopPoller() {
+      if (pollerHandle) { clearInterval(pollerHandle); pollerHandle = null; }
+      syncButtons();
+    }
+
+    // ── list view ──────────────────────────────────────────────────────────────────
+    let listRefreshHandle = null;
+
+    async function loadJobs() {
+      try {
+        const q = document.getElementById("search-input").value.trim();
+        const url = q ? `${BACKEND}/ai/jobs?search=${encodeURIComponent(q)}` : `${BACKEND}/ai/jobs`;
+        const { jobs } = await fetch(url).then(r => r.json());
+
+        const tbody = document.getElementById("jobs-tbody");
+        if (!jobs?.length) {
+          tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">No jobs yet. Click "New Job" to start.</div></td></tr>`;
+          document.getElementById("jobs-count").textContent = "0 jobs";
+          setGlobalStatus(0);
+          return;
+        }
+
+        const running = jobs.filter(j => j.status === "running").length;
+        setGlobalStatus(running);
+        document.getElementById("jobs-count").textContent = `${jobs.length} job${jobs.length !== 1 ? "s" : ""}`;
+
+        tbody.innerHTML = jobs.map(j => `
+      <tr onclick="showView('job',${j.id})">
+        <td>${j.id}</td>
+        <td class="model-cell">${esc(j.model_name)}</td>
+        <td>${esc(j.dataset || "—")}</td>
+        <td><span class="type-badge ${j.type}">${j.type}</span></td>
+        <td><span class="status-badge ${j.status}">${j.status}</span></td>
+        <td>${fmtMs(j.duration_ms)}</td>
+        <td>${fmtDate(j.started_at)}</td>
+        <td class="fail-cell">${j.fail_reason ? esc(j.fail_reason) : "—"}</td>
+      </tr>`).join("");
+      } catch (_) { }
+    }
+
+    // ── job detail view ────────────────────────────────────────────────────────────
+    async function loadJobDetail(jobId) {
+      try {
+        const [job, logRes] = await Promise.all([
+          fetch(`${BACKEND}/ai/jobs/${jobId}`).then(r => r.json()),
+          fetch(`${BACKEND}/ai/jobs/${jobId}/log`).then(r => r.json()),
+        ]);
+
+        // Fill form fields (readonly)
+        document.getElementById("model-path").value = job.model_path || "";
+        document.getElementById("dataset-path").value = job.dataset || "";
+        document.getElementById("extra-args").value = job.extra_args || "";
+        document.getElementById("model-name").textContent = job.model_name || "—";
+
+        if (job.train_script || job.run_script) {
+          document.getElementById("info-train").textContent = job.train_script || "—";
+          document.getElementById("info-run").textContent = job.run_script || "—";
+          document.getElementById("info-dparam").textContent = job.dataset_param || "—";
+          document.getElementById("model-info").classList.add("show");
+        }
+
+        // Metrics
+        const statusEl = document.getElementById("metric-status");
+        statusEl.textContent = job.status;
+        statusEl.style.color = job.status === "done" ? "var(--success)" :
+          job.status === "running" ? "var(--warn)" : "var(--error)";
+        document.getElementById("metric-duration").textContent = fmtMs(job.duration_ms);
+        if (job.fail_reason) {
+          document.getElementById("metric-fail").textContent = job.fail_reason;
+          document.getElementById("metric-fail-wrap").style.display = "";
+        } else {
+          document.getElementById("metric-fail-wrap").style.display = "none";
+        }
+        document.getElementById("metrics-strip").classList.add("show");
+
+        // Log
+        logOffset = logRes.size || 0;
+        renderFullLog(logRes.log);
+
+        // If still running, start polling
+        if (job.status === "running") {
+          document.getElementById("readonly-banner").classList.remove("show");
+          document.getElementById("job-view-title").textContent = `Job #${jobId} — live`;
+          startPoller(jobId);
+        } else {
+          document.getElementById("readonly-banner").classList.add("show");
+          stopPoller();
+        }
+        syncButtons();
+      } catch (_) {
+        logBox.innerHTML = '<p class="fail">&gt; could not load job</p>';
+      }
+    }
+
+    // ── view switching ─────────────────────────────────────────────────────────────
+    function showView(which, jobId = null) {
+      const onJob = which === "job";
+      const onList = which === "list";
+
+      document.getElementById("view-list").classList.toggle("active", onList);
+      document.getElementById("view-job").classList.toggle("active", onJob);
+      document.getElementById("tab-list").classList.toggle("active", onList);
+      document.getElementById("tab-job").classList.toggle("active", onJob);
+
+      if (onList) {
+        stopPoller();
+        viewingJobId = null;
+        loadJobs();
+        history.pushState({}, "", location.pathname);
+        // Refresh list every 3s while on list page (for running job durations)
+        clearInterval(listRefreshHandle);
+        listRefreshHandle = setInterval(loadJobs, 3000);
+      } else {
+        clearInterval(listRefreshHandle);
+        if (jobId !== null) {
+          // Viewing an existing job
+          viewingJobId = jobId;
+          document.getElementById("job-view-title").textContent = `Job #${jobId}`;
+          document.getElementById("job-view-id").textContent = `#${jobId}`;
+          setReadonly(true);
+          loadJobDetail(jobId);
+          history.pushState({}, "", `?job=${jobId}`);
+        } else {
+          // New job form
+          resetNewJob();
+          history.pushState({}, "", "?new");
+        }
+      }
+    }
+
+    function setReadonly(on) {
+      ["model-path", "dataset-path", "extra-args"].forEach(id => {
+        const el = document.getElementById(id);
+        on ? el.setAttribute("readonly", "") : el.removeAttribute("readonly");
+      });
+      document.getElementById("browse-model").disabled = on;
+      document.getElementById("browse-dataset-folder").disabled = on;
+      document.getElementById("browse-dataset-file").disabled = on;
+    }
+
+    function resetNewJob() {
+      stopPoller();
+      viewingJobId = null;
+      modelValid = false;
+      savedModelPath = ""; savedDatasetPath = "";
+      document.getElementById("job-view-title").textContent = "New Job";
+      document.getElementById("job-view-id").textContent = "";
+      document.getElementById("readonly-banner").classList.remove("show");
+      document.getElementById("model-path").value = "";
+      document.getElementById("dataset-path").value = "";
+      document.getElementById("extra-args").value = "";
+      document.getElementById("model-name").textContent = "—";
+      document.getElementById("model-hint").className = "path-hint";
+      document.getElementById("model-info").classList.remove("show");
+      document.getElementById("metrics-strip").classList.remove("show");
+      document.getElementById("progress-wrap").classList.remove("visible");
+      document.getElementById("metric-fail-wrap").style.display = "none";
+      logBox.innerHTML = '<p class="sys">&gt; awaiting job…</p>';
+      logOffset = 0;
+      setReadonly(false);
+      syncButtons();
+    }
+
+    // ── model validation ───────────────────────────────────────────────────────────
+    document.getElementById("model-path").addEventListener("input", e => {
+      clearTimeout(window._vt);
+      window._vt = setTimeout(async () => {
+        const p = e.target.value.trim();
+        savedModelPath = p;
+        const hint = document.getElementById("model-hint");
+        if (!p) {
+          modelValid = false; hint.className = "path-hint";
+          document.getElementById("model-info").classList.remove("show");
+          syncButtons(); return;
+        }
+        try {
+          const d = await fetch(`${BACKEND}/ai/validate?modelPath=${encodeURIComponent(p)}`).then(r => r.json());
+          modelValid = d.valid;
+          if (d.valid) {
+            hint.className = "path-hint ok show";
+            hint.textContent = `Loaded: ${d.config.name}`;
+            document.getElementById("model-name").textContent = d.config.name;
+            document.getElementById("info-train").textContent = d.config.train_script || "—";
+            document.getElementById("info-run").textContent = d.config.run_script || "—";
+            document.getElementById("info-dparam").textContent = d.config.dataset_param || "—";
+            document.getElementById("model-info").classList.add("show");
+            document.getElementById("model-path").className = "path-input valid";
+          } else {
+            hint.className = "path-hint err show";
+            hint.textContent = d.error || "Invalid";
+            document.getElementById("model-info").classList.remove("show");
+            document.getElementById("model-path").className = "path-input invalid";
+          }
+        } catch { modelValid = false; }
+        syncButtons();
+      }, 500);
+    });
+
+    document.getElementById("dataset-path").addEventListener("input", e => {
+      savedDatasetPath = e.target.value.trim();
+    });
+
+    // ── browse buttons ─────────────────────────────────────────────────────────────
+    async function pickFolder(inputEl, onPath) {
+      const d = await fetch(`${BACKEND}/pick-folder`).then(r => r.json());
+      if (!d.cancelled && d.path) { inputEl.value = d.path; onPath(d.path); }
+    }
+    async function pickFile(inputEl, onPath) {
+      const d = await fetch(`${BACKEND}/pick-file`).then(r => r.json());
+      if (!d.cancelled && d.path) { inputEl.value = d.path; onPath(d.path); }
+    }
+
+    document.getElementById("browse-model").addEventListener("click", () =>
+      pickFolder(document.getElementById("model-path"), p => {
+        savedModelPath = p;
+        document.getElementById("model-path").dispatchEvent(new Event("input"));
+      }));
+    document.getElementById("browse-dataset-folder").addEventListener("click", () =>
+      pickFolder(document.getElementById("dataset-path"), p => { savedDatasetPath = p; }));
+    document.getElementById("browse-dataset-file").addEventListener("click", () =>
+      pickFile(document.getElementById("dataset-path"), p => { savedDatasetPath = p; }));
+
+    // ── train / run / cancel ───────────────────────────────────────────────────────
+    document.getElementById("btn-train").addEventListener("click", async () => {
+      if (!modelValid || !savedModelPath) return;
+      try {
+        const res = await fetch(`${BACKEND}/ai/train`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            modelPath: savedModelPath,
+            datasetPath: savedDatasetPath,
+            extraArgs: document.getElementById("extra-args").value.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) { toast("error", "Failed to start", data.error); return; }
+        // Switch to live view for this job
+        document.getElementById("job-view-title").textContent = `Job #${data.jobId} — live`;
+        document.getElementById("job-view-id").textContent = `#${data.jobId}`;
+        document.getElementById("metrics-strip").classList.remove("show");
+        document.getElementById("progress-wrap").classList.remove("visible");
+        logBox.innerHTML = '<p class="sys">&gt; starting…</p>';
+        startPoller(data.jobId);
+      } catch (e) { toast("error", "Error", e.message); }
+    });
+
+    document.getElementById("btn-run").addEventListener("click", async () => {
+      if (!modelValid || !savedModelPath) return;
+      try {
+        const res = await fetch(`${BACKEND}/ai/run`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            modelPath: savedModelPath,
+            extraArgs: document.getElementById("extra-args").value.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) { toast("error", "Failed to start", data.error); return; }
+        document.getElementById("job-view-title").textContent = `Job #${data.jobId} — live`;
+        document.getElementById("job-view-id").textContent = `#${data.jobId}`;
+        document.getElementById("metrics-strip").classList.remove("show");
+        document.getElementById("progress-wrap").classList.remove("visible");
+        logBox.innerHTML = '<p class="sys">&gt; starting…</p>';
+        startPoller(data.jobId);
+      } catch (e) { toast("error", "Error", e.message); }
+    });
+
+    document.getElementById("btn-cancel").addEventListener("click", async () => {
+      if (!viewingJobId) return;
+      try {
+        await fetch(`${BACKEND}/ai/cancel`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: viewingJobId }),
+        });
+        // Don't stop the poller — let it detect the status change naturally
+      } catch (e) { toast("error", "Cancel failed", e.message); }
+    });
+
+    // ── clock ──────────────────────────────────────────────────────────────────────
+    setInterval(() => {
+      document.getElementById("clock").textContent =
+        new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }, 1000);
+
+    // ── search ─────────────────────────────────────────────────────────────────────
+    document.getElementById("search-input").addEventListener("input", () => {
+      clearTimeout(window._st);
+      window._st = setTimeout(loadJobs, 300);
+    });
+
+    // ── boot ───────────────────────────────────────────────────────────────────────
+    window.addEventListener("load", () => {
+      document.getElementById("footer-poll").textContent = "REST polling";
+      const p = new URLSearchParams(location.search);
+      if (p.has("job")) showView("job", parseInt(p.get("job")));
+      else showView("list");
+    });
+  </script>
+</body>
+
+</html>

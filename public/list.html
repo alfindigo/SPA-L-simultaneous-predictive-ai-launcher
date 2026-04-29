@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job History — AI Launcher</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #080b0f;
+            --bg-panel: #0d1117;
+            --bg-input: #070a0e;
+            --border: #1e2530;
+            --border-hi: #2a3444;
+            --text: #cdd6e0;
+            --text-dim: #4a5568;
+            --text-muted: #7a8fa3;
+            --accent: #00d4ff;
+            --success: #00e89a;
+            --warn: #ffb347;
+            --error: #ff5555;
+            --train: #a78bfa;
+            --run: #34d399;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .shell {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 2rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .tagline {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline strong {
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-new {
+            height: 36px;
+            padding: 0 18px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            background: rgba(0, 212, 255, 0.07);
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .btn-new:hover {
+            background: rgba(0, 212, 255, 0.14);
+            border-color: var(--accent);
+        }
+
+        .clock {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        main {
+            flex: 1;
+            padding: 1.5rem 0 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search {
+            flex: 1;
+            height: 38px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-hi);
+            border-radius: 4px;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            padding: 0 12px;
+        }
+
+        .search:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search::placeholder {
+            color: var(--text-dim);
+        }
+
+        .btn-refresh {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 4px;
+            border: 1px solid var(--border-hi);
+            background: transparent;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-refresh:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .table-wrap {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 400;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(30, 37, 48, 0.6);
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 212, 255, 0.04);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        td.model {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .badge.train {
+            color: var(--train);
+            background: rgba(167, 139, 250, 0.1);
+            border-color: rgba(167, 139, 250, 0.25);
+        }
+
+        .badge.run {
+            color: var(--run);
+            background: rgba(52, 211, 153, 0.1);
+            border-color: rgba(52, 211, 153, 0.25);
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .status::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status.running {
+            color: var(--warn);
+            background: rgba(255, 179, 71, 0.1);
+            border-color: rgba(255, 179, 71, 0.25);
+        }
+
+        .status.running::before {
+            background: var(--warn);
+            animation: pulse 1s infinite;
+        }
+
+        .status.done {
+            color: var(--success);
+            background: rgba(0, 232, 154, 0.1);
+            border-color: rgba(0, 232, 154, 0.25);
+        }
+
+        .status.done::before {
+            background: var(--success);
+        }
+
+        .status.failed {
+            color: var(--error);
+            background: rgba(255, 85, 85, 0.1);
+            border-color: rgba(255, 85, 85, 0.25);
+        }
+
+        .status.failed::before {
+            background: var(--error);
+        }
+
+        .status.cancelled {
+            color: var(--text-dim);
+            background: rgba(74, 85, 104, 0.1);
+            border-color: rgba(74, 85, 104, 0.25);
+        }
+
+        .status.cancelled::before {
+            background: var(--text-dim);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.25
+            }
+        }
+
+        .fail-reason {
+            color: var(--error);
+            font-size: 10px;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .empty {
+            padding: 60px 24px;
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 2.2;
+        }
+
+        .empty a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .empty a:hover {
+            text-decoration: underline;
+        }
+
+        .list-meta {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .running-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--warn);
+        }
+
+        .running-pip {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--warn);
+            animation: pulse 1s infinite;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1rem 0;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <header>
+            <div>
+                <div class="logo">AI Launcher</div>
+                <div class="tagline">Job <strong>History</strong></div>
+            </div>
+            <div class="header-right">
+                <span class="clock" id="clock"></span>
+                <a class="btn-new" href="index.html">+ New Job</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="toolbar">
+                <input class="search" id="search" type="text" placeholder="Search model, dataset, type, status…"
+                    autocomplete="off" />
+                <button class="btn-refresh" onclick="load()">↻ Refresh</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Model</th>
+                            <th>Dataset</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Duration</th>
+                            <th>Started</th>
+                            <th>Fail Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty">Loading…</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="list-meta">
+                <span id="meta-left">—</span>
+                <span id="meta-right"></span>
+            </div>
+        </main>
+
+        <footer>
+            <span>AI Model Launcher</span>
+            <span>port 5557</span>
+        </footer>
+    </div>
+
+    <script>
+        const API = "http://localhost:5557";
+        let refreshTimer = null;
+
+        function fmtMs(ms) {
+            if (!ms || ms <= 0) return "—";
+            const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+            if (h > 0) return `${h}h ${m % 60}m`;
+            if (m > 0) return `${m}m ${s % 60}s`;
+            return `${s}s`;
+        }
+
+        function fmtDate(ts) {
+            if (!ts) return "—";
+            const d = new Date(ts);
+            return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + " " +
+                d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        }
+
+        function esc(s) {
+            return String(s || "").replace(/[&<>"']/g, c =>
+                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+        }
+
+        async function load() {
+            const q = document.getElementById("search").value.trim();
+            const url = q ? `${API}/ai/jobs?search=${encodeURIComponent(q)}` : `${API}/ai/jobs`;
+            try {
+                const { jobs } = await fetch(url).then(r => r.json());
+                render(jobs || []);
+            } catch {
+                document.getElementById("tbody").innerHTML =
+                    `<tr><td colspan="8"><div class="empty">Cannot reach server at ${API}<br>Make sure <code>npm start</code> is running.</div></td></tr>`;
+            }
+        }
+
+        function render(jobs) {
+            const tbody = document.getElementById("tbody");
+            if (!jobs.length) {
+                tbody.innerHTML = `<tr><td colspan="8"><div class="empty">No jobs yet.<br><a href="index.html">Start your first job →</a></div></td></tr>`;
+                document.getElementById("meta-left").textContent = "0 jobs";
+                document.getElementById("meta-right").innerHTML = "";
+                clearInterval(refreshTimer); refreshTimer = null;
+                return;
+            }
+
+            tbody.innerHTML = jobs.map(j => `
+      <tr onclick="open_job(${j.id})">
+        <td>${j.id}</td>
+        <td class="model">${esc(j.model_name)}</td>
+        <td>${esc(j.dataset || "—")}</td>
+        <td><span class="badge ${j.type}">${j.type}</span></td>
+        <td><span class="status ${j.status}">${j.status}</span></td>
+        <td>${fmtMs(j.duration_ms)}</td>
+        <td>${fmtDate(j.started_at)}</td>
+        <td><span class="fail-reason">${j.fail_reason ? esc(j.fail_reason) : "—"}</span></td>
+      </tr>`).join("");
+
+            const running = jobs.filter(j => j.status === "running").length;
+            document.getElementById("meta-left").textContent = `${jobs.length} job${jobs.length !== 1 ? "s" : ""}`;
+            document.getElementById("meta-right").innerHTML = running > 0
+                ? `<span class="running-pill"><span class="running-pip"></span>${running} running</span>`
+                : "";
+
+            // Auto-refresh every 3s while jobs are running
+            if (running > 0 && !refreshTimer) {
+                refreshTimer = setInterval(load, 3000);
+            } else if (running === 0 && refreshTimer) {
+                clearInterval(refreshTimer); refreshTimer = null;
+            }
+        }
+
+        function open_job(id) {
+            window.location.href = `index.html?job=${id}`;
+        }
+
+        // Clock
+        setInterval(() => {
+            document.getElementById("clock").textContent =
+                new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        }, 1000);
+
+        // Search debounce
+        document.getElementById("search").addEventListener("input", () => {
+            clearTimeout(window._st);
+            window._st = setTimeout(load, 300);
+        });
+
+        load();
+    </script>
+</body>
+
+</html>
