@@ -21,7 +21,6 @@
       background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
       background-size:40px 40px}
     .shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;padding:0 1.5rem}
-
     /* ── header ── */
     header{padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between}
     .logo{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
@@ -33,7 +32,6 @@
     .status-pip.busy{background:var(--warn);animation:pulse 1s infinite}
     .status-pip.error{background:var(--error)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-
     /* ── nav ── */
     .nav-tabs{display:flex;gap:4px;padding:1rem 0 0;border-bottom:1px solid var(--border)}
     .nav-tab{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;
@@ -41,11 +39,9 @@
       border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s}
     .nav-tab:hover{color:var(--text-muted)}
     .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-
     /* ── views ── */
     .view{display:none;flex:1;padding:1.5rem 0;flex-direction:column;gap:1.5rem}
     .view.active{display:flex}
-
     /* ══════════════════════════════════════════
        LIST VIEW
     ══════════════════════════════════════════ */
@@ -62,7 +58,6 @@
       background:transparent;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);
       cursor:pointer;transition:all 0.15s}
     .btn-refresh-sm:hover{color:var(--accent);border-color:var(--accent)}
-
     .table-wrap{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
     .jobs-table{width:100%;border-collapse:collapse}
     .jobs-table thead tr{border-bottom:1px solid var(--border)}
@@ -74,11 +69,9 @@
     .jobs-table tbody tr:hover{background:rgba(0,212,255,0.04)}
     .jobs-table tbody tr:last-child td{border-bottom:none}
     .jobs-table td.model-cell{color:var(--text);font-weight:500}
-
     .type-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;border:1px solid}
     .type-badge.train{color:var(--train-col);background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.25)}
     .type-badge.run{color:var(--run-col);background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.25)}
-
     .status-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;border:1px solid}
     .status-badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
     .status-badge.running{color:var(--warn);background:rgba(255,179,71,0.1);border-color:rgba(255,179,71,0.25)}
@@ -89,13 +82,11 @@
     .status-badge.failed::before{background:var(--error)}
     .status-badge.cancelled{color:var(--text-dim);background:rgba(74,85,104,0.1);border-color:rgba(74,85,104,0.25)}
     .status-badge.cancelled::before{background:var(--text-dim)}
-
     .fail-reason{color:var(--error);font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .empty-state{padding:60px 24px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);line-height:2.2}
     .list-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center}
     .running-pill{display:inline-flex;align-items:center;gap:6px;color:var(--warn)}
     .running-pip{width:6px;height:6px;border-radius:50%;background:var(--warn);animation:pulse 1s infinite}
-
     /* ══════════════════════════════════════════
        MANAGE VIEW
     ══════════════════════════════════════════ */
@@ -119,7 +110,6 @@
       background:rgba(0,212,255,0.06);font-family:'DM Mono',monospace;font-size:11px;
       color:var(--accent);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
     .btn-add:hover{background:rgba(0,212,255,0.12)}
-
     /* ══════════════════════════════════════════
        JOB VIEW
     ══════════════════════════════════════════ */
@@ -129,50 +119,76 @@
     .btn-back:hover{color:var(--accent);border-color:var(--accent)}
     .job-view-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:0.1em}
     .job-view-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-left:auto}
-
     .readonly-banner{display:none;align-items:center;gap:10px;padding:10px 14px;
       background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:6px;
       font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted)}
     .readonly-banner.show{display:flex}
     .readonly-banner .rb-badge{color:var(--accent);font-weight:500}
-
     .panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    .panel.panel-form{overflow:visible}
     .panel-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
     .panel-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
     .panel-name{font-size:14px;font-weight:500;color:var(--text);margin-left:auto}
     .panel-body{padding:16px;display:flex;flex-direction:column;gap:12px}
-
     .field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px}
-    .drop-select{width:100%;height:36px;background:var(--bg-input);border:1px solid var(--border-hi);border-radius:4px;
-      color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:0 10px;cursor:pointer;transition:border-color 0.15s}
-    .drop-select:focus{outline:none;border-color:var(--accent)}
-    .drop-select.valid{border-color:var(--success)}
-    .drop-select:disabled{opacity:0.4;cursor:default}
 
-    .path-hint{font-family:'DM Mono',monospace;font-size:11px;line-height:1.5;padding:6px 10px;border-radius:3px;display:none;margin-top:2px}
+    /* ── custom select with per-row ⓘ ── */
+    .custom-select{position:relative;width:100%}
+    .custom-select.disabled{opacity:0.4;pointer-events:none}
+    .cs-trigger{
+      width:100%;height:36px;background:var(--bg-input);border:1px solid var(--border-hi);
+      border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;
+      padding:0 10px;cursor:pointer;transition:border-color 0.15s;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}
+    .cs-trigger:focus,.custom-select.open .cs-trigger{outline:none;border-color:var(--accent)}
+    .custom-select.valid .cs-trigger{border-color:var(--success)}
+    .cs-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cs-label.placeholder{color:var(--text-dim)}
+    .cs-chevron{color:var(--text-dim);font-size:10px;transition:transform 0.15s}
+    .custom-select.open .cs-chevron{transform:rotate(180deg);color:var(--accent)}
+    .cs-panel{
+      position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;
+      background:#0b1018;border:1px solid var(--border-hi);border-radius:4px;
+      box-shadow:0 12px 32px rgba(0,0,0,0.6);
+      max-height:260px;overflow-y:auto;display:none;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .custom-select.open .cs-panel{display:block}
+    .cs-empty{padding:14px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
+    .cs-option{
+      display:flex;align-items:center;gap:6px;
+      padding:0 4px 0 10px;height:34px;
+      font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
+      cursor:pointer;border-bottom:1px solid rgba(30,37,48,0.4);transition:background 0.1s}
+    .cs-option:last-child{border-bottom:none}
+    .cs-option:hover{background:rgba(0,212,255,0.06)}
+    .cs-option.selected{background:rgba(0,212,255,0.08);color:var(--accent)}
+    .cs-option-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cs-info{
+      background:none;border:none;cursor:pointer;color:var(--text-dim);
+      font-size:14px;line-height:1;padding:4px 7px;border-radius:3px;
+      transition:color 0.15s,background 0.15s;flex-shrink:0}
+    .cs-info:hover{color:var(--accent);background:rgba(0,212,255,0.12)}
+
+    .path-hint{font-family:'DM Mono',monospace;font-size:11px;line-height:1.5;padding:6px 10px;border-radius:3px;display:none;margin-top:6px}
     .path-hint.show{display:block}
     .path-hint.ok{color:var(--success);background:rgba(0,232,154,0.07);border:1px solid rgba(0,232,154,0.2)}
     .path-hint.err{color:var(--error);background:rgba(255,85,85,0.07);border:1px solid rgba(255,85,85,0.2)}
-
     .model-info{display:none;flex-wrap:wrap;gap:8px;padding:10px 12px;
       background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px}
     .model-info.show{display:flex}
     .info-chip{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);display:flex;gap:6px}
     .info-chip span{color:var(--accent)}
-
     .extras-row{display:flex;flex-direction:column;gap:5px}
     .extras-input{height:32px;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;
       color:var(--text-muted);font-family:'DM Mono',monospace;font-size:11px;padding:0 10px}
     .extras-input:focus{outline:none;border-color:var(--border-hi);color:var(--text)}
     .extras-input::placeholder{color:var(--text-dim)}
     .extras-input[readonly]{opacity:0.6;cursor:default}
-
     .metrics-strip{display:none;flex-wrap:wrap;gap:8px;padding:10px 12px;
       background:rgba(0,232,154,0.04);border:1px solid rgba(0,232,154,0.15);border-radius:4px}
     .metrics-strip.show{display:flex}
     .metric-chip{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);display:flex;gap:6px}
     .metric-chip span{color:var(--success)}
-
     .actions{display:flex;gap:10px}
     .btn-action{flex:1;height:42px;border-radius:4px;border:1px solid;font-family:'DM Mono',monospace;
       font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;
@@ -185,7 +201,6 @@
     .btn-run:hover:not(:disabled){background:rgba(52,211,153,0.12);border-color:var(--run-col)}
     .btn-cancel{flex:0 0 auto;padding:0 16px;color:var(--text-dim);border-color:var(--border-hi);background:transparent}
     .btn-cancel:hover:not(:disabled){color:var(--error);border-color:var(--error)}
-
     .progress-wrap{display:none;flex-direction:column;gap:6px}
     .progress-wrap.visible{display:flex}
     .progress-header{display:flex;justify-content:space-between;align-items:center}
@@ -194,7 +209,6 @@
     .progress-detail{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
     .progress-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
     .progress-fill{height:100%;width:0%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--success));transition:width 0.4s ease}
-
     .log-panel{display:flex;flex-direction:column}
     .log-head{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
     .log-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
@@ -210,12 +224,10 @@
     .log-box .done{color:var(--success);font-weight:500}
     .log-box .fail{color:var(--error)}
     .log-box .sep{color:var(--border-hi);user-select:none}
-
     /* ── footer ── */
     footer{border-top:1px solid var(--border);padding:1rem 0;display:flex;align-items:center;justify-content:space-between}
     .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
     .footer-right{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;gap:16px}
-
     /* ── toast ── */
     .toast{position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;max-width:400px;padding:14px 18px;
       border-radius:6px;border:1px solid;font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;
@@ -229,11 +241,78 @@
     .toast-body{flex:1}
     .toast-title{font-weight:500;letter-spacing:0.05em;margin-bottom:2px}
     .toast-msg{opacity:0.75;font-size:11px}
+    /* ── info modals ── */
+    .info-modal-overlay{
+      position:fixed;inset:0;z-index:8000;pointer-events:none;
+      display:flex;align-items:center;justify-content:center;
+      background:transparent;transition:background 0.2s;padding:24px}
+    .info-modal-overlay.active{pointer-events:all;background:rgba(0,0,0,0.55)}
+    .info-modal{
+      min-width:320px;max-width:560px;width:100%;
+      max-height:85vh;display:flex;flex-direction:column;
+      background:#0b1018;
+      border:1px solid var(--border-hi);
+      border-radius:8px;
+      box-shadow:0 24px 64px rgba(0,0,0,0.85),0 0 0 1px rgba(0,212,255,0.06);
+      overflow:hidden;
+      opacity:0;transform:translateY(16px) scale(0.97);
+      transition:opacity 0.2s ease,transform 0.2s cubic-bezier(0.34,1.2,0.64,1);
+      pointer-events:none}
+    .info-modal.show{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+    .im-header{display:flex;align-items:center;justify-content:space-between;
+      padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0,212,255,0.04);flex-shrink:0}
+    .im-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      letter-spacing:0.15em;text-transform:uppercase;color:var(--accent)}
+    .im-close{background:none;border:none;color:var(--text-dim);cursor:pointer;
+      font-size:14px;line-height:1;padding:2px 4px;transition:color 0.12s}
+    .im-close:hover{color:var(--text)}
+    .im-body{padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .im-row{display:flex;flex-direction:column;gap:3px}
+    .im-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .im-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;
+      text-transform:uppercase;color:var(--text-dim)}
+    .im-value{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);
+      word-break:break-word;line-height:1.5}
+    .im-value.accent{color:var(--accent)}
+    .im-value.muted{color:var(--text-muted)}
+    .im-value.success{color:var(--success)}
+    .im-value.warn{color:var(--warn)}
+    .im-divider{height:1px;background:var(--border);margin:2px 0}
+    .im-section-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+    .im-filelist{display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .im-file{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);
+      padding:4px 8px;border-radius:3px;background:rgba(255,255,255,0.02);
+      display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .im-file-icon{flex-shrink:0;font-size:12px;opacity:0.6}
+    .im-badge-row{display:flex;gap:6px;flex-wrap:wrap}
+    .im-badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;
+      border-radius:3px;border:1px solid;font-weight:500;letter-spacing:0.05em;text-transform:uppercase}
+    .im-badge.model-type{color:var(--accent);border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.07)}
+    .im-badge.gluon{color:var(--success);border-color:rgba(0,232,154,0.25);background:rgba(0,232,154,0.07)}
+    .im-badge.custom{color:var(--warn);border-color:rgba(255,179,71,0.25);background:rgba(255,179,71,0.07)}
+    .im-badge.family{color:var(--train-col);border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08)}
+    .im-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:8px 0}
+    .im-table-wrap{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:4px;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .im-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10px}
+    .im-table thead th{background:rgba(0,212,255,0.06);color:var(--text-muted);font-weight:500;
+      letter-spacing:0.06em;text-transform:uppercase;font-size:9px;position:sticky;top:0;z-index:1}
+    .im-table th,.im-table td{padding:5px 8px;text-align:left;border-bottom:1px solid rgba(30,37,48,0.4);white-space:nowrap}
+    .im-table tbody tr:last-child td{border-bottom:none}
+    .im-table td{color:var(--text-muted)}
+    .im-table-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px}
+    /* ── forecast panel ── */
+    .forecast-panel{display:none}
+    .forecast-panel.show{display:block}
+    .forecast-img{display:block;width:100%;height:auto;border-radius:4px;background:#fff}
+    .forecast-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:30px 0}
   </style>
 </head>
 <body>
 <div class="shell">
-
   <header>
     <div>
       <div class="logo">AI Model Launcher</div>
@@ -244,7 +323,6 @@
       <div id="clock">--:--:--</div>
     </div>
   </header>
-
   <div class="nav-tabs">
     <button class="nav-tab active" id="tab-list"   onclick="showView('list')">Job History</button>
     <button class="nav-tab"        id="tab-job"    onclick="showView('job',null)">Launcher</button>
@@ -292,12 +370,12 @@
         <div class="manage-list" id="datasets-list"></div>
         <div class="manage-add" style="flex-direction:column;gap:8px">
           <input class="manage-input" id="dataset-add-name" placeholder="Name (e.g. hospital)"/>
-          <input class="manage-input" id="dataset-add-path" placeholder="Path (optional - only required for non GluonTS datasets)"/>
+          <input class="manage-input" id="dataset-add-path" placeholder="Path (optional — only for non-GluonTS datasets)"/>
           <button class="btn-add" onclick="addDataset()">Add</button>
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 
   <!-- ══ JOB VIEW ══ -->
   <div class="view" id="view-job">
@@ -306,13 +384,11 @@
       <span class="job-view-title" id="job-view-title">New Job</span>
       <span class="job-view-id"   id="job-view-id"></span>
     </div>
-
     <div class="readonly-banner" id="readonly-banner">
       <span class="rb-badge">READONLY</span>
       <span>Viewing a past job. <a href="#" onclick="showView('job',null);return false;" style="color:var(--accent)">Start a new job →</a></span>
     </div>
-
-    <div class="panel">
+    <div class="panel panel-form">
       <div class="panel-head">
         <div class="panel-label">Model</div>
         <div class="panel-name" id="model-name">—</div>
@@ -320,9 +396,13 @@
       <div class="panel-body">
         <div>
           <div class="field-label">Model</div>
-          <select class="drop-select" id="model-select">
-            <option value="">— select model —</option>
-          </select>
+          <div class="custom-select" id="model-select-wrap">
+            <button type="button" class="cs-trigger" id="model-trigger">
+              <span class="cs-label placeholder">— select model —</span>
+              <span class="cs-chevron">▾</span>
+            </button>
+            <div class="cs-panel" id="model-panel"></div>
+          </div>
           <div class="path-hint" id="model-hint"></div>
         </div>
         <div class="model-info" id="model-info">
@@ -332,9 +412,13 @@
         </div>
         <div>
           <div class="field-label">Dataset</div>
-          <select class="drop-select" id="dataset-select" disabled>
-            <option value="">— select model first —</option>
-          </select>
+          <div class="custom-select disabled" id="dataset-select-wrap">
+            <button type="button" class="cs-trigger" id="dataset-trigger" disabled>
+              <span class="cs-label placeholder">— select model first —</span>
+              <span class="cs-chevron">▾</span>
+            </button>
+            <div class="cs-panel" id="dataset-panel"></div>
+          </div>
         </div>
         <div class="extras-row">
           <div class="field-label">Extra args (optional)</div>
@@ -347,13 +431,11 @@
         </div>
       </div>
     </div>
-
     <div class="actions" id="actions-bar">
       <button class="btn-action btn-train" id="btn-train" disabled>Train</button>
       <button class="btn-action btn-run"   id="btn-run"   disabled>Run</button>
       <button class="btn-action btn-cancel" id="btn-cancel" disabled style="display:none">Cancel</button>
     </div>
-
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-header">
         <span class="progress-label" id="progress-label">Progress</span>
@@ -362,7 +444,6 @@
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="progress-detail" id="progress-detail"></div>
     </div>
-
     <div class="panel log-panel">
       <div class="log-head">
         <span class="log-title">Output</span>
@@ -372,8 +453,15 @@
         <p class="sys">&gt; awaiting job…</p>
       </div>
     </div>
+    <div class="panel forecast-panel" id="forecast-panel">
+      <div class="panel-head">
+        <span class="panel-label">Forecast</span>
+      </div>
+      <div class="panel-body">
+        <img id="forecast-img" class="forecast-img" alt="forecast"/>
+      </div>
+    </div>
   </div>
-
 </div><!-- shell -->
 
 <div class="toast" id="toast">
@@ -381,6 +469,28 @@
   <div class="toast-body">
     <div class="toast-title" id="toast-title"></div>
     <div class="toast-msg"   id="toast-msg"></div>
+  </div>
+</div>
+
+<!-- ══ MODEL INFO MODAL ══ -->
+<div class="info-modal-overlay" id="model-modal-overlay">
+  <div class="info-modal" id="model-modal">
+    <div class="im-header">
+      <span class="im-title">Model Info</span>
+      <button class="im-close" onclick="closeInfoModal('model')">✕</button>
+    </div>
+    <div class="im-body" id="model-modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ DATASET INFO MODAL ══ -->
+<div class="info-modal-overlay" id="dataset-modal-overlay">
+  <div class="info-modal" id="dataset-modal">
+    <div class="im-header">
+      <span class="im-title">Dataset Info</span>
+      <button class="im-close" onclick="closeInfoModal('dataset')">✕</button>
+    </div>
+    <div class="im-body" id="dataset-modal-body"></div>
   </div>
 </div>
 
@@ -395,6 +505,71 @@
 <script>
 const BACKEND = "http://localhost:5557";
 
+// ── curated knowledge: model details ──────────────────────────────────────────
+const MODEL_DETAILS = {
+  'lag-llama': {
+    full_name: 'Lag-Llama',
+    family: 'Time-series foundation model',
+    architecture: 'Decoder-only Transformer (LLaMA-style)',
+    parameters: '~2.4M',
+    released: 'Feb 2024',
+    authors: 'Morgan Stanley · Mila · ServiceNow · UdeM',
+    context_length: 'Up to 1024 (configurable)',
+    forecast: 'Probabilistic — Student-t output head (quantiles)',
+    speed: 'Fast — runs comfortably on CPU; sub-second per series typical',
+    strengths: 'Open-source, lightweight, strong zero-shot probabilistic forecasts on small/medium series',
+    weaknesses: 'Univariate only; less accurate than larger foundation models on long horizons',
+    license: 'Apache 2.0',
+    paper: 'arXiv:2310.08278',
+    description: 'A small open-source time-series foundation model. Uses the values themselves and their lagged copies as covariates fed into a LLaMA-style decoder, producing probabilistic forecasts. Designed to be runnable on commodity hardware while still delivering competitive zero-shot accuracy.'
+  },
+  'chronos-2': {
+    full_name: 'Chronos-2',
+    family: 'Time-series foundation model',
+    architecture: 'Encoder-decoder Transformer (T5-style) with value tokenization',
+    parameters: '8M (tiny) → 710M (large), pick by checkpoint',
+    released: '2025 (successor to Chronos, 2024)',
+    authors: 'Amazon Science',
+    context_length: '~512 tokens (≈ 512 timesteps)',
+    forecast: 'Probabilistic — quantile predictions sampled from the LM',
+    speed: 'tiny / small: real-time on CPU · base / large: GPU recommended',
+    strengths: 'State-of-the-art zero-shot accuracy on many benchmarks; multiple sizes; well-calibrated quantiles; improved long-horizon vs Chronos-1',
+    weaknesses: 'Larger sizes need a GPU; value tokenization adds quantization noise on highly continuous signals; fixed context window',
+    license: 'Apache 2.0',
+    paper: 'arXiv:2403.07815 (Chronos) · Chronos-2 technical report',
+    description: 'Treats raw time-series values as a vocabulary by quantizing them, then trains a sequence-to-sequence language model to forecast the next tokens. Chronos-2 improves long-horizon accuracy, calibration, and inference efficiency over the original Chronos release.'
+  }
+};
+
+function lookupModel(name){
+  if(!name) return null;
+  const k = name.toLowerCase().trim().replace(/\s+/g,'-');
+  if(MODEL_DETAILS[k]) return MODEL_DETAILS[k];
+  for(const key of Object.keys(MODEL_DETAILS)){
+    if(k.includes(key) || key.includes(k)) return MODEL_DETAILS[key];
+  }
+  return null;
+}
+
+// ── curated knowledge: dataset details ────────────────────────────────────────
+const DATASET_DETAILS = {
+  'm3_monthly': {description:'Monthly subset of the M3 forecasting competition (Makridakis & Hibon, 2000). 1,428 monthly series spanning six domains: micro, macro, industry, finance, demographic and other. A long-standing classical-statistics benchmark.', source:'M3 Competition', frequency:'Monthly', series_count:'1,428', series_length:'48–126 months', horizon:'18', domain:'Mixed (6 categories)'},
+  'nn5_daily_without_missing': {description:'Daily cash-withdrawal counts at 111 ATMs in England over roughly two years (March 1996 – March 1998), released for the NN5 forecasting competition (2008). The `without_missing` variant has the original missing values imputed (median of the same weekday).', source:'NN5 Competition (2008)', frequency:'Daily', series_count:'111', series_length:'735 days (~2 years)', horizon:'56 (8 weeks)', domain:'Finance / Retail banking'},
+  'tourism_monthly': {description:'Monthly subset of the Kaggle Tourism Forecasting Competition (Athanasopoulos, Hyndman, Song & Wu, 2011). 366 monthly series of tourism-related demand, predominantly from Australia.', source:'Athanasopoulos et al. 2011 / Kaggle Tourism Comp.', frequency:'Monthly', series_count:'366', series_length:'91–333 months', horizon:'24', domain:'Tourism'},
+  'australian_electricity_demand': {description:'Half-hourly electricity demand for the five Australian states — Victoria, New South Wales, Queensland, Tasmania and South Australia — sourced from the Australian Energy Market Operator (AEMO). Packaged in the Monash Time Series Forecasting Repository (extracted from the R `tsibbledata` package).', source:'AEMO via Monash Forecasting Archive', frequency:'Half-hourly (30 min)', series_count:'5 (one per state)', series_length:'~230,700 obs per series', horizon:'60 (Monash benchmark)', domain:'Energy'},
+  'hospital': {description:'767 monthly time series of patient counts related to medical products, covering January 2000 to December 2006. Originally from the R `expsmooth` package (Hyndman et al., 2008) and re-packaged in the Monash Forecasting Archive.', source:'expsmooth (R) via Monash Forecasting Archive', frequency:'Monthly', series_count:'767', series_length:'84 months', horizon:'12', domain:'Healthcare'},
+};
+
+function lookupDataset(name){
+  if(!name) return null;
+  const k = name.toLowerCase().trim();
+  if(DATASET_DETAILS[k]) return DATASET_DETAILS[k];
+  for(const key of Object.keys(DATASET_DETAILS)){
+    if(k.includes(key) || key.includes(k)) return DATASET_DETAILS[key];
+  }
+  return null;
+}
+
 // ── state ─────────────────────────────────────────────────────────────────────
 let viewingJobId      = null;
 let selectedModelId   = null;
@@ -407,10 +582,114 @@ let modelsCache       = [];
 let datasetsCache     = [];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
-function esc(s){ return String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]) }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]) }
 function fmtMs(ms){ if(!ms||ms<=0)return"—"; const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60); if(h>0)return`${h}h ${m%60}m`; if(m>0)return`${m}m ${s%60}s`; return`${s}s` }
 function fmtDate(ts){ if(!ts)return"—"; const d=new Date(ts); return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) }
 function lineClass(l){ if(l.startsWith("[DONE]"))return"done"; if(l.startsWith("[ERROR]"))return"fail"; if(l.startsWith("[CANCEL"))return"sys"; if(l.startsWith("[launcher]"))return"sys"; if(l.includes("DeprecationWarning")||l.includes("pkg_resources")||l.startsWith("WARNING"))return"sys"; return"out" }
+
+// ── custom select component ───────────────────────────────────────────────────
+function makeCustomSelect(rootId, opts={}){
+  const root    = document.getElementById(rootId);
+  const trigger = root.querySelector('.cs-trigger');
+  const labelEl = trigger.querySelector('.cs-label');
+  const panel   = root.querySelector('.cs-panel');
+  let _value = "";
+  let _items = [];
+  let _placeholder = opts.placeholder || "— select —";
+  let _emptyText   = opts.emptyText   || "No options";
+  let _disabled = false;
+  const onChange = [];
+  const onInfo   = [];
+
+  function close(){ root.classList.remove('open') }
+  function open(){
+    if(_disabled) return;
+    document.querySelectorAll('.custom-select.open').forEach(el=>{ if(el!==root) el.classList.remove('open') });
+    root.classList.add('open');
+  }
+  function toggle(){ root.classList.contains('open') ? close() : open() }
+
+  trigger.addEventListener('click', e=>{ e.stopPropagation(); toggle() });
+  document.addEventListener('click', e=>{
+    if(e.target.closest('.info-modal-overlay')) return;
+    if(!root.contains(e.target)) close();
+  });
+
+  function updateLabel(){
+    const found = _items.find(i=>String(i.value)===String(_value));
+    if(found){
+      labelEl.textContent = found.label;
+      labelEl.classList.remove('placeholder');
+    } else {
+      labelEl.textContent = _placeholder;
+      labelEl.classList.add('placeholder');
+    }
+  }
+
+  function render(){
+    if(!_items.length){
+      panel.innerHTML = `<div class="cs-empty">${esc(_emptyText)}</div>`;
+      return;
+    }
+    panel.innerHTML = _items.map(it=>`
+      <div class="cs-option${String(it.value)===String(_value)?' selected':''}" data-value="${esc(it.value)}">
+        <span class="cs-option-label">${esc(it.label)}</span>
+        <button type="button" class="cs-info" data-value="${esc(it.value)}" title="More info">ⓘ</button>
+      </div>
+    `).join('');
+    panel.querySelectorAll('.cs-option').forEach(opt=>{
+      const v = opt.dataset.value;
+      opt.addEventListener('click', e=>{
+        if(e.target.closest('.cs-info')) return;
+        api.setValue(v, true);
+        close();
+      });
+      opt.querySelector('.cs-info').addEventListener('click', e=>{
+        e.stopPropagation();
+        onInfo.forEach(cb=>cb(v));
+      });
+    });
+  }
+
+  const api = {
+    get value(){ return _value },
+    setValue(v, fire=false){
+      _value = v==null ? "" : String(v);
+      updateLabel(); render();
+      if(fire) onChange.forEach(cb=>cb(_value));
+    },
+    setItems(items, placeholder, emptyText){
+      _items = Array.isArray(items) ? items : [];
+      if(placeholder !== undefined) _placeholder = placeholder;
+      if(emptyText   !== undefined) _emptyText   = emptyText;
+      if(!_items.find(i=>String(i.value)===String(_value))) _value = "";
+      updateLabel(); render();
+    },
+    setPlaceholder(p){ _placeholder = p; updateLabel() },
+    setDisabled(d){
+      _disabled = !!d;
+      root.classList.toggle('disabled', _disabled);
+      trigger.disabled = _disabled;
+      if(_disabled) close();
+    },
+    setValid(v){ root.classList.toggle('valid', !!v) },
+    setLabelText(text){ labelEl.textContent = text; labelEl.classList.remove('placeholder') },
+    onChange(cb){ onChange.push(cb) },
+    onInfo(cb){ onInfo.push(cb) },
+  };
+  return api;
+}
+
+const modelSel   = makeCustomSelect('model-select-wrap',   {placeholder:'— select model —',       emptyText:'No models added yet'});
+const datasetSel = makeCustomSelect('dataset-select-wrap', {placeholder:'— select model first —', emptyText:'No datasets added yet'});
+
+modelSel.onChange(onModelSelected);
+modelSel.onInfo(triggerModelModal);
+
+datasetSel.onChange(v=>{
+  selectedDatasetId = parseInt(v) || null;
+});
+datasetSel.onInfo(triggerDatasetModal);
 
 // ── clock ─────────────────────────────────────────────────────────────────────
 setInterval(()=>{ document.getElementById("clock").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) },1000);
@@ -476,6 +755,7 @@ async function pollJob(){
       document.getElementById("metrics-strip").classList.add("show");
       if(jobRes.fail_reason&&jobRes.status!=="done"){ document.getElementById("metric-fail").textContent=jobRes.fail_reason; document.getElementById("metric-fail-wrap").style.display="" }
       document.getElementById("readonly-banner").classList.add("show");
+      if(jobRes.status==="done") tryLoadForecast(id);
       toast(jobRes.status==="done"?"done":jobRes.status==="cancelled"?"warn":"error",
         jobRes.status==="done"?"Job complete":jobRes.status==="cancelled"?"Job cancelled":"Job failed",
         `Duration: ${fmtMs(jobRes.duration_ms)}${jobRes.fail_reason?" — "+jobRes.fail_reason:""}`);
@@ -523,7 +803,6 @@ async function loadManage(){
   modelsCache=models; datasetsCache=datasets;
   renderModelsList(); renderDatasetsList();
 }
-
 function renderModelsList(){
   const el=document.getElementById("models-list");
   if(!modelsCache.length){el.innerHTML='<div class="empty-state" style="padding:20px;font-size:11px">No models added yet.</div>';return}
@@ -532,19 +811,17 @@ function renderModelsList(){
     <button class="btn-del" onclick="deleteModel(${m.id})">✕</button>
   </div>`).join("");
 }
-
 function renderDatasetsList(){
   const el=document.getElementById("datasets-list");
   if(!datasetsCache.length){el.innerHTML='<div class="empty-state" style="padding:20px;font-size:11px">No datasets added yet.</div>';return}
   el.innerHTML=datasetsCache.map(d=>`<div class="manage-item">
     <div style="flex:1;min-width:0">
       <div class="manage-item-name">${esc(d.name)}</div>
-      ${d.path ? `<div class="manage-item-sub">${esc(d.path)}</div>` : ''}
+      ${d.path?`<div class="manage-item-sub">${esc(d.path)}</div>`:''}
     </div>
     <button class="btn-del" onclick="deleteDataset(${d.id})">✕</button>
   </div>`).join("");
 }
-
 async function addModel(){
   const name=document.getElementById("model-add-name").value.trim();
   const mpath=document.getElementById("model-add-path").value.trim();
@@ -555,12 +832,10 @@ async function addModel(){
   document.getElementById("model-add-name").value=""; document.getElementById("model-add-path").value="";
   toast("done","Model added",name); loadManage(); populateModelDropdown();
 }
-
 async function deleteModel(id){
   await fetch(`${BACKEND}/api/models/${id}`,{method:"DELETE"});
   loadManage(); populateModelDropdown();
 }
-
 async function addDataset(){
   const name=document.getElementById("dataset-add-name").value.trim();
   const dpath=document.getElementById("dataset-add-path").value.trim();
@@ -568,11 +843,9 @@ async function addDataset(){
   const r=await fetch(`${BACKEND}/api/datasets`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,path:dpath})});
   const d=await r.json();
   if(!r.ok){toast("error","Could not add dataset",d.error);return}
-  document.getElementById("dataset-add-name").value="";
-  document.getElementById("dataset-add-path").value="";
+  document.getElementById("dataset-add-name").value=""; document.getElementById("dataset-add-path").value="";
   toast("done","Dataset added",name); loadManage();
 }
-
 async function deleteDataset(id){
   await fetch(`${BACKEND}/api/datasets/${id}`,{method:"DELETE"});
   loadManage();
@@ -582,20 +855,17 @@ async function deleteDataset(id){
 async function populateModelDropdown(){
   const models=await fetch(`${BACKEND}/api/models`).then(r=>r.json());
   modelsCache=models;
-  const sel=document.getElementById("model-select");
-  const prev=sel.value;
-  sel.innerHTML=`<option value="">— select model —</option>`+models.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join("");
-  if(prev) sel.value=prev;
+  modelSel.setItems(models.map(m=>({value:m.id, label:m.name})), "— select model —");
 }
 
-async function onModelSelected(){
-  const sel=document.getElementById("model-select");
-  const id=parseInt(sel.value);
+async function onModelSelected(v){
+  const id=parseInt(v);
   selectedModelId=id||null; modelValid=false; selectedDatasetId=null;
   document.getElementById("model-info").classList.remove("show");
   document.getElementById("model-hint").className="path-hint";
-  document.getElementById("dataset-select").innerHTML=`<option value="">— select model first —</option>`;
-  document.getElementById("dataset-select").disabled=true;
+  modelSel.setValid(false);
+  datasetSel.setItems([], "— select model first —");
+  datasetSel.setDisabled(true);
   syncButtons();
   if(!id) return;
 
@@ -611,28 +881,218 @@ async function onModelSelected(){
         document.getElementById("info-run").textContent=d.config.run_script||"—";
         document.getElementById("info-dparam").textContent=d.config.dataset_param||"—";
         document.getElementById("model-info").classList.add("show");
-        sel.className="drop-select valid";
+        modelSel.setValid(true);
       }else{
-        hint.className="path-hint err show"; hint.textContent=d.error||"Invalid model"; sel.className="drop-select";
+        hint.className="path-hint err show"; hint.textContent=d.error||"Invalid model"; modelSel.setValid(false);
       }
     }catch{ document.getElementById("model-hint").className="path-hint err show"; document.getElementById("model-hint").textContent="Could not reach backend" }
   }
 
+  // load datasets — and FIX: actually populate the cache so the ⓘ button works
   const datasets=await fetch(`${BACKEND}/api/datasets`).then(r=>r.json());
-  const dsel=document.getElementById("dataset-select");
+  datasetsCache=datasets;
   if(datasets.length){
-    dsel.innerHTML=`<option value="">— select dataset —</option>`+datasets.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
-    dsel.disabled=false;
+    datasetSel.setItems(datasets.map(d=>({value:d.id, label:d.name})), "— select dataset —");
+    datasetSel.setDisabled(false);
   }else{
-    dsel.innerHTML=`<option value="">— no datasets added yet —</option>`; dsel.disabled=true;
+    datasetSel.setItems([], "— no datasets added yet —");
+    datasetSel.setDisabled(true);
   }
   syncButtons();
 }
 
-document.getElementById("model-select").addEventListener("change",onModelSelected);
-document.getElementById("dataset-select").addEventListener("change",()=>{
-  selectedDatasetId=parseInt(document.getElementById("dataset-select").value)||null;
-});
+// ── info modals ───────────────────────────────────────────────────────────────
+function openInfoModal(which){
+  const overlay=document.getElementById(`${which}-modal-overlay`);
+  const modal=document.getElementById(`${which}-modal`);
+  overlay.classList.add('active');
+  requestAnimationFrame(()=>modal.classList.add('show'));
+}
+function closeInfoModal(which){
+  const overlay=document.getElementById(`${which}-modal-overlay`);
+  const modal=document.getElementById(`${which}-modal`);
+  modal.classList.remove('show');
+  setTimeout(()=>overlay.classList.remove('active'),200);
+}
+document.getElementById('model-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeInfoModal('model') });
+document.getElementById('dataset-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeInfoModal('dataset') });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeInfoModal('model'); closeInfoModal('dataset') } });
+
+function fileIcon(name){
+  if(name.endsWith('.py'))return'🐍'; if(name.endsWith('.csv')||name.endsWith('.tsv'))return'📊';
+  if(name.endsWith('.json'))return'📋'; if(name.endsWith('.pt')||name.endsWith('.pth')||name.endsWith('.ckpt')||name.endsWith('.safetensors'))return'🧠';
+  if(name.endsWith('.txt')||name.endsWith('.md'))return'📄'; if(name.endsWith('.yaml')||name.endsWith('.yml'))return'⚙️'; return'📁';
+}
+
+async function triggerModelModal(id){
+  const m = modelsCache.find(x => String(x.id) === String(id));
+  if(!m) return;
+  let cfg=null;
+  try{ const d=await fetch(`${BACKEND}/api/validate?modelPath=${encodeURIComponent(m.path)}`).then(r=>r.json()); if(d.valid) cfg=d.config; }catch(_){}
+  const details = lookupModel(m.name) || lookupModel(cfg?.name);
+  const modelType = cfg?.model_type || details?.family || '—';
+
+  const detailsBlock = details ? `
+    <div class="im-divider"></div>
+    <div class="im-row">
+      <div class="im-label">About</div>
+      <div class="im-value" style="line-height:1.65">${esc(details.description)}</div>
+    </div>
+    <div class="im-divider"></div>
+    <div class="im-section-title">Specifications</div>
+    <div class="im-grid">
+      <div class="im-row"><div class="im-label">Architecture</div><div class="im-value">${esc(details.architecture)}</div></div>
+      <div class="im-row"><div class="im-label">Parameters</div><div class="im-value">${esc(details.parameters)}</div></div>
+      <div class="im-row"><div class="im-label">Released</div><div class="im-value">${esc(details.released)}</div></div>
+      <div class="im-row"><div class="im-label">Authors</div><div class="im-value">${esc(details.authors)}</div></div>
+      <div class="im-row"><div class="im-label">Context length</div><div class="im-value">${esc(details.context_length)}</div></div>
+      <div class="im-row"><div class="im-label">Forecast type</div><div class="im-value">${esc(details.forecast)}</div></div>
+      <div class="im-row"><div class="im-label">License</div><div class="im-value">${esc(details.license)}</div></div>
+      <div class="im-row"><div class="im-label">Paper</div><div class="im-value muted">${esc(details.paper)}</div></div>
+    </div>
+    <div class="im-divider"></div>
+    <div class="im-row"><div class="im-label">Speed</div><div class="im-value success">${esc(details.speed)}</div></div>
+    <div class="im-row"><div class="im-label">Strengths</div><div class="im-value success">${esc(details.strengths)}</div></div>
+    <div class="im-row"><div class="im-label">Weaknesses</div><div class="im-value warn">${esc(details.weaknesses)}</div></div>
+  ` : `
+    <div class="im-row"><div class="im-value muted" style="font-size:11px">No curated description available for this model.</div></div>
+  `;
+
+  document.getElementById('model-modal-body').innerHTML = `
+    <div class="im-badge-row">
+      <span class="im-badge model-type">${esc(modelType)}</span>
+      ${details ? `<span class="im-badge family">${esc(details.family)}</span>` : ''}
+    </div>
+    <div class="im-row">
+      <div class="im-label">Name</div>
+      <div class="im-value accent">${esc(details?.full_name || cfg?.name || m.name)}</div>
+    </div>
+    ${detailsBlock}
+    <div class="im-divider"></div>
+    <div class="im-section-title">Local install</div>
+    <div class="im-row"><div class="im-label">Folder path</div><div class="im-value muted" style="font-size:10px">${esc(m.path)}</div></div>
+    <div class="im-grid">
+      <div class="im-row"><div class="im-label">Train script</div><div class="im-value">${esc(cfg?.train_script||'—')}</div></div>
+      <div class="im-row"><div class="im-label">Run script</div><div class="im-value">${esc(cfg?.run_script||'—')}</div></div>
+    </div>
+    <div class="im-row"><div class="im-label">Dataset param</div><div class="im-value">${esc(cfg?.dataset_param||'—')}</div></div>
+  `;
+  openInfoModal('model');
+}
+
+async function triggerDatasetModal(id){
+  const ds = datasetsCache.find(x => String(x.id) === String(id));
+  if(!ds) return;
+  const isGluon = !ds.path;
+  const details = lookupDataset(ds.name);
+  let files = [];
+  if(ds.path){
+    try{ const r=await fetch(`${BACKEND}/api/dataset-files?path=${encodeURIComponent(ds.path)}`).then(r=>r.json()); files=r.files||[]; }catch(_){}
+  }
+  let preview = null;
+  try{
+    const r = await fetch(`${BACKEND}/api/dataset-preview?datasetId=${id}&limit=20`);
+    if(r.ok) preview = await r.json();
+  }catch(_){}
+
+  const detailsBlock = details ? `
+    <div class="im-divider"></div>
+    <div class="im-row">
+      <div class="im-label">About</div>
+      <div class="im-value" style="line-height:1.65">${esc(details.description)}</div>
+    </div>
+    <div class="im-divider"></div>
+    <div class="im-section-title">Specifications</div>
+    <div class="im-grid">
+      <div class="im-row"><div class="im-label">Source</div><div class="im-value">${esc(details.source)}</div></div>
+      <div class="im-row"><div class="im-label">Domain</div><div class="im-value">${esc(details.domain)}</div></div>
+      <div class="im-row"><div class="im-label">Frequency</div><div class="im-value">${esc(details.frequency)}</div></div>
+      <div class="im-row"><div class="im-label">Series count</div><div class="im-value">${esc(details.series_count)}</div></div>
+      <div class="im-row"><div class="im-label">Series length</div><div class="im-value">${esc(details.series_length)}</div></div>
+      <div class="im-row"><div class="im-label">Default horizon</div><div class="im-value">${esc(details.horizon)}</div></div>
+    </div>
+  ` : `
+    <div class="im-row"><div class="im-value muted" style="font-size:11px">No curated description available for this dataset.</div></div>
+  `;
+
+  const filesBlock = isGluon
+    ? `<div class="im-divider"></div>
+       <div class="im-row"><div class="im-value muted" style="font-size:10px;line-height:1.6">Loaded automatically by GluonTS at runtime. No local files required.</div></div>`
+    : `<div class="im-divider"></div>
+       <div class="im-section-title">Files in path</div>
+       <div class="im-filelist">${
+         files.length
+           ? files.map(f=>`<div class="im-file"><span class="im-file-icon">${fileIcon(f)}</span>${esc(f)}</div>`).join('')
+           : '<div class="im-empty">No files found or path not accessible</div>'
+       }</div>`;
+
+  let previewBlock = '';
+  if(preview && Array.isArray(preview.rows) && preview.rows.length){
+    const cols = preview.columns && preview.columns.length
+      ? preview.columns
+      : Object.keys(preview.rows[0]);
+    const totalNote = preview.total && preview.total > preview.rows.length
+      ? `Showing ${preview.rows.length} of ${preview.total}`
+      : `Showing ${preview.rows.length}`;
+    previewBlock = `
+      <div class="im-divider"></div>
+      <div class="im-section-title">Data preview</div>
+      <div class="im-table-wrap">
+        <table class="im-table">
+          <thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>${preview.rows.map(row=>`
+            <tr>${cols.map(c=>{
+              const v = row[c];
+              const display = (v===null||v===undefined) ? '—'
+                : (typeof v === 'object' ? JSON.stringify(v) : String(v));
+              const truncated = display.length > 80 ? display.slice(0,80)+'…' : display;
+              return `<td title="${esc(display)}">${esc(truncated)}</td>`;
+            }).join('')}</tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+      <div class="im-table-meta">${esc(totalNote)}${preview.note ? ' · '+esc(preview.note) : ''}</div>
+    `;
+  } else {
+    previewBlock = `
+      <div class="im-divider"></div>
+      <div class="im-section-title">Data preview</div>
+      <div class="im-empty" style="padding:14px 0">No preview available — backend has no /api/dataset-preview endpoint for this dataset.</div>
+    `;
+  }
+
+  document.getElementById('dataset-modal-body').innerHTML = `
+    <div class="im-badge-row">
+      <span class="im-badge ${isGluon?'gluon':'custom'}">${isGluon?'GluonTS built-in':'Custom path'}</span>
+    </div>
+    <div class="im-row">
+      <div class="im-label">Name</div>
+      <div class="im-value accent">${esc(ds.name)}</div>
+    </div>
+    ${ds.path ? `<div class="im-row"><div class="im-label">Path</div><div class="im-value muted" style="font-size:10px">${esc(ds.path)}</div></div>` : ''}
+    ${detailsBlock}
+    ${previewBlock}
+    ${filesBlock}
+  `;
+  openInfoModal('dataset');
+}
+
+// ── forecast image loader ────────────────────────────────────────────────────
+function tryLoadForecast(jobId){
+  const panel = document.getElementById('forecast-panel');
+  const img   = document.getElementById('forecast-img');
+  if(!jobId){ panel.classList.remove('show'); return }
+  const url = `${BACKEND}/api/jobs/${jobId}/forecast.png?t=${Date.now()}`;
+  img.onload  = () => panel.classList.add('show');
+  img.onerror = () => { panel.classList.remove('show'); img.removeAttribute('src') };
+  img.src = url;
+}
+function clearForecast(){
+  const panel = document.getElementById('forecast-panel');
+  const img   = document.getElementById('forecast-img');
+  panel.classList.remove('show');
+  img.removeAttribute('src');
+}
 
 // ── view switching ────────────────────────────────────────────────────────────
 function showView(which,jobId=null){
@@ -641,7 +1101,6 @@ function showView(which,jobId=null){
     const t=document.getElementById(`tab-${v}`); if(t) t.classList.toggle("active",v===which);
   });
   clearInterval(listRefreshHandle); listRefreshHandle=null;
-
   if(which==="list"){
     stopPoller(); viewingJobId=null; loadJobs();
     history.pushState({},"",location.pathname);
@@ -662,8 +1121,8 @@ function showView(which,jobId=null){
 }
 
 function setReadonly(on){
-  document.getElementById("model-select").disabled=on;
-  document.getElementById("dataset-select").disabled=on;
+  modelSel.setDisabled(on);
+  datasetSel.setDisabled(on);
   document.getElementById("extra-args")[on?"setAttribute":"removeAttribute"]("readonly","");
 }
 
@@ -672,8 +1131,11 @@ function resetNewJob(){
   document.getElementById("job-view-title").textContent="New Job";
   document.getElementById("job-view-id").textContent="";
   document.getElementById("readonly-banner").classList.remove("show");
-  document.getElementById("model-select").value=""; document.getElementById("model-select").className="drop-select"; document.getElementById("model-select").disabled=false;
-  document.getElementById("dataset-select").innerHTML=`<option value="">— select model first —</option>`; document.getElementById("dataset-select").disabled=true;
+  modelSel.setValid(false);
+  modelSel.setValue("");
+  modelSel.setDisabled(false);
+  datasetSel.setItems([], "— select model first —");
+  datasetSel.setDisabled(true);
   document.getElementById("extra-args").value="";
   document.getElementById("model-name").textContent="—";
   document.getElementById("model-hint").className="path-hint";
@@ -682,6 +1144,7 @@ function resetNewJob(){
   document.getElementById("progress-wrap").classList.remove("visible");
   document.getElementById("metric-fail-wrap").style.display="none";
   logBox.innerHTML='<p class="sys">&gt; awaiting job…</p>';
+  clearForecast();
   logOffset=0; setReadonly(false); syncButtons();
   populateModelDropdown();
 }
@@ -692,8 +1155,10 @@ async function loadJobDetail(jobId){
       fetch(`${BACKEND}/api/jobs/${jobId}`).then(r=>r.json()),
       fetch(`${BACKEND}/api/jobs/${jobId}/log`).then(r=>r.json()),
     ]);
-    document.getElementById("model-select").innerHTML=`<option value="">${esc(job.model_name)}</option>`;
-    document.getElementById("dataset-select").innerHTML=`<option value="">${esc(job.dataset||"—")}</option>`;
+    modelSel.setItems([], job.model_name || "—");
+    modelSel.setLabelText(job.model_name || "—");
+    datasetSel.setItems([], job.dataset || "—");
+    datasetSel.setLabelText(job.dataset || "—");
     document.getElementById("extra-args").value=job.extra_args||"";
     document.getElementById("model-name").textContent=job.model_name||"—";
     if(job.train_script||job.run_script){
@@ -710,8 +1175,8 @@ async function loadJobDetail(jobId){
     else { document.getElementById("metric-fail-wrap").style.display="none" }
     document.getElementById("metrics-strip").classList.add("show");
     logOffset=logRes.size||0; renderFullLog(logRes.log);
-    if(job.status==="running"){ document.getElementById("readonly-banner").classList.remove("show"); document.getElementById("job-view-title").textContent=`Job #${jobId} — live`; startPoller(jobId) }
-    else{ document.getElementById("readonly-banner").classList.add("show"); stopPoller() }
+    if(job.status==="running"){ document.getElementById("readonly-banner").classList.remove("show"); document.getElementById("job-view-title").textContent=`Job #${jobId} — live`; clearForecast(); startPoller(jobId) }
+    else{ document.getElementById("readonly-banner").classList.add("show"); stopPoller(); job.status==="done" ? tryLoadForecast(jobId) : clearForecast() }
     syncButtons();
   }catch(_){ logBox.innerHTML='<p class="fail">&gt; could not load job</p>' }
 }
@@ -728,11 +1193,11 @@ document.getElementById("btn-train").addEventListener("click",async()=>{
     document.getElementById("job-view-id").textContent=`#${data.jobId}`;
     document.getElementById("metrics-strip").classList.remove("show");
     document.getElementById("progress-wrap").classList.remove("visible");
+    clearForecast();
     logBox.innerHTML='<p class="sys">&gt; starting…</p>';
     startPoller(data.jobId);
   }catch(e){toast("error","Error",e.message)}
 });
-
 document.getElementById("btn-run").addEventListener("click",async()=>{
   if(!modelValid||!selectedModelId)return;
   try{
@@ -744,11 +1209,11 @@ document.getElementById("btn-run").addEventListener("click",async()=>{
     document.getElementById("job-view-id").textContent=`#${data.jobId}`;
     document.getElementById("metrics-strip").classList.remove("show");
     document.getElementById("progress-wrap").classList.remove("visible");
+    clearForecast();
     logBox.innerHTML='<p class="sys">&gt; starting…</p>';
     startPoller(data.jobId);
   }catch(e){toast("error","Error",e.message)}
 });
-
 document.getElementById("btn-cancel").addEventListener("click",async()=>{
   if(!viewingJobId)return;
   try{ await fetch(`${BACKEND}/api/cancel`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:viewingJobId})}) }

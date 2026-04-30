@@ -97,6 +97,7 @@ function dbAll(sql, params = []) {
 const LOGS_DIR = path.join(__dirname, "logs");
 if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 const logPath = (id) => path.join(LOGS_DIR, `job_${id}.log`);
+const jobOutputDir = (id) => path.join(LOGS_DIR, `job_${id}`);
 
 function writeLog(file, text) {
   if (!file) return;
@@ -221,6 +222,10 @@ function startJob(type, scriptPath, args, cwd, meta) {
   const lp = logPath(jobId);
   dbRun(`UPDATE jobs SET log_file = ? WHERE id = ?`, [lp, jobId]);
 
+  // Per-job output dir for artifacts (e.g. forecast.png written by wrappers)
+  const outDir = jobOutputDir(jobId);
+  try { fs.mkdirSync(outDir, { recursive: true }); } catch (_) { }
+
   progress.set(jobId, { percent: 0, detail: "", totalEpochs: 50 });
 
   // Write header immediately so first poll sees content
@@ -235,7 +240,13 @@ function startJob(type, scriptPath, args, cwd, meta) {
   const child = spawn(python, ["-u", scriptPath, ...args], {
     cwd,
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, PYTHONUNBUFFERED: "1", PYTHONIOENCODING: "utf-8" },
+    env: {
+      ...process.env,
+      PYTHONUNBUFFERED: "1",
+      PYTHONIOENCODING: "utf-8",
+      JOB_OUTPUT_DIR: outDir,
+      JOB_ID: String(jobId),
+    },
   });
 
   procs.set(jobId, child);
@@ -357,6 +368,28 @@ app.post("/api/datasets", (req, res) => {
 app.delete("/api/datasets/:id", (req, res) => {
   dbRun(`DELETE FROM datasets WHERE id = ?`, [parseInt(req.params.id)]);
   res.json({ ok: true });
+});
+
+// GET /api/dataset-files?path=  — list files in a dataset directory
+app.get("/api/dataset-files", (req, res) => {
+  const { path: dpath } = req.query;
+  if (!dpath) return res.json({ files: [] });
+  try {
+    if (!fs.existsSync(dpath)) return res.json({ files: [], error: "Path not found" });
+    const stat = fs.statSync(dpath);
+    if (stat.isDirectory()) {
+      const entries = fs.readdirSync(dpath, { withFileTypes: true });
+      const files = entries
+        .filter(e => e.isFile())
+        .map(e => e.name)
+        .sort();
+      return res.json({ files });
+    }
+    // It's a file itself — just return the filename
+    return res.json({ files: [path.basename(dpath)] });
+  } catch (e) {
+    return res.json({ files: [], error: e.message });
+  }
 });
 
 // GET /api/jobs  — list all jobs (with optional ?search=)
@@ -574,6 +607,82 @@ app.post("/api/cancel", (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+// ── Forecast image ────────────────────────────────────────────────────────────
+// Tries (in order):
+//   1. logs/job_<id>/forecast.png            (preferred — wrappers can write here via $JOB_OUTPUT_DIR)
+//   2. logs/job_<id>/*.png                   (any png in the per-job dir)
+//   3. <modelPath>/forecast.png              (only if mtime >= job started_at)
+//   4. <modelPath>/outputs/forecast.png      (same mtime check)
+//   5. <modelPath>/forecast_<id>.png
+function findForecastImage(jobId, modelPath, startedAt) {
+  const outDir = jobOutputDir(jobId);
+  if (fs.existsSync(outDir)) {
+    const explicit = path.join(outDir, "forecast.png");
+    if (fs.existsSync(explicit)) return explicit;
+    try {
+      const pngs = fs.readdirSync(outDir).filter(f => f.toLowerCase().endsWith(".png"));
+      if (pngs.length) return path.join(outDir, pngs[0]);
+    } catch (_) { }
+  }
+  if (modelPath) {
+    const candidates = [
+      path.join(modelPath, "forecast.png"),
+      path.join(modelPath, "outputs", "forecast.png"),
+      path.join(modelPath, `forecast_${jobId}.png`),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        try {
+          const st = fs.statSync(p);
+          if (!startedAt || st.mtimeMs >= startedAt - 1000) return p;
+        } catch (_) { }
+      }
+    }
+  }
+  return null;
+}
+
+app.get("/api/jobs/:id/forecast.png", (req, res) => {
+  const id = parseInt(req.params.id);
+  const job = dbGet(`SELECT model_path, started_at FROM jobs WHERE id = ?`, [id]);
+  if (!job) return res.status(404).end();
+  const file = findForecastImage(id, job.model_path, job.started_at);
+  if (!file) return res.status(404).end();
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "no-store");
+  fs.createReadStream(file).pipe(res);
+});
+
+// ── Dataset preview ───────────────────────────────────────────────────────────
+// GET /api/dataset-preview?datasetId=<id>&limit=<n>
+// Spawns a small Python helper (_dataset_preview.py) co-located with this file.
+// For named GluonTS datasets (no path) returns one row per series with
+// item_id / start / length / first / last / mean.
+const PY_PREVIEW = path.join(__dirname, "_dataset_preview.py");
+
+app.get("/api/dataset-preview", (req, res) => {
+  const id = parseInt(req.query.datasetId);
+  const limit = Math.min(200, Math.max(1, parseInt(req.query.limit || "20")));
+  const ds = dbGet(`SELECT * FROM datasets WHERE id = ?`, [id]);
+  if (!ds) return res.status(404).json({ error: "Dataset not found" });
+  if (!fs.existsSync(PY_PREVIEW)) {
+    return res.status(500).json({ error: `_dataset_preview.py missing next to server.js (${PY_PREVIEW})` });
+  }
+  const python = process.platform === "win32" ? "python" : "python3";
+  const child = spawn(python, [PY_PREVIEW, ds.name, ds.path || "", String(limit)], {
+    env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+  });
+  let out = "", err = "";
+  child.stdout.on("data", d => out += d.toString());
+  child.stderr.on("data", d => err += d.toString());
+  child.on("close", code => {
+    if (code !== 0) return res.status(500).json({ error: (err || `exit ${code}`).trim() });
+    try { res.json(JSON.parse(out)); }
+    catch (e) { res.status(500).json({ error: "Bad preview output", raw: out.slice(0, 500) }); }
+  });
+  child.on("error", e => res.status(500).json({ error: e.message }));
 });
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
