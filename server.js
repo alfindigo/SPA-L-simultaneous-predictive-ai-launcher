@@ -33,6 +33,26 @@ async function initDb() {
   `);
   db.run(`CREATE INDEX IF NOT EXISTS idx_started ON jobs(started_at DESC)`);
   db.run(`CREATE INDEX IF NOT EXISTS idx_status  ON jobs(status)`);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS models (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      name       TEXT NOT NULL UNIQUE,
+      path       TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS datasets (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      name       TEXT NOT NULL UNIQUE,
+      path       TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL
+    )
+  `);
+
+
   persist();
   console.log("[db] ready →", DB_PATH);
 }
@@ -92,7 +112,6 @@ const progress = new Map();  // jobId → { percent, detail, totalEpochs }
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.get("/", (req, res) => res.redirect("/list.html"));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmtMs(ms) {
@@ -128,6 +147,65 @@ function parseProgress(text, jobId) {
 
   const me = text.match(/Max epochs:\s+(\d+)/);
   if (me) p.totalEpochs = parseInt(me[1]);
+}
+// ── Model config detection ────────────────────────────────────────────────────
+function detectModelConfig(modelPath) {
+  const modelJson = path.join(modelPath, "model.json");
+  if (fs.existsSync(modelJson)) return "model.json";
+
+  const configJson = path.join(modelPath, "config.json");
+  if (fs.existsSync(configJson)) return "config.json";
+
+  const files = fs.readdirSync(modelPath);
+  if (files.some(f => f === "model.py" || f.startsWith("modeling_"))) return "model.py";
+
+  return null;
+}
+
+function loadModelConfig(modelPath) {
+  const kind = detectModelConfig(modelPath);
+  if (!kind) return null;
+
+  if (kind === "model.json") {
+    const cfg = JSON.parse(fs.readFileSync(path.join(modelPath, "model.json"), "utf8"));
+    cfg.model_type = cfg.model_type || "custom";
+    return cfg;
+  }
+
+  if (kind === "config.json") {
+    const hfCfg = JSON.parse(fs.readFileSync(path.join(modelPath, "config.json"), "utf8"));
+    const modelType = hfCfg.model_type || "unknown";
+    const wrapperMap = {
+      "chronos":      { train: "train_wrapper.py", run: "run_wrapper.py" },
+      "chronos_bolt": { train: "train_wrapper.py", run: "run_wrapper.py" },
+      "t5":           { train: "train_wrapper.py", run: "run_wrapper.py" },
+      "moirai":       { train: "train_wrapper.py", run: "run_wrapper.py" },
+      "timesfm":      { train: "train_wrapper.py", run: "run_wrapper.py" },
+    };
+    const scripts = wrapperMap[modelType] || { train: "train_wrapper.py", run: "run_wrapper.py" };
+    return {
+      name: hfCfg.name || modelType,
+      model_type: modelType,
+      train_script: scripts.train,
+      run_script: scripts.run,
+      dataset_param: "--dataset",
+      model_param: "",
+      _hf: hfCfg,
+    };
+  }
+
+  if (kind === "model.py") {
+    return {
+      name: path.basename(modelPath),
+      model_type: "research",
+      train_script: "train_wrapper.py",
+      run_script: "run_wrapper.py",
+      dataset_param: "--dataset",
+      model_param: "--model",
+    };
+  }
+
+  return null;
 }
 
 // ── Core job runner ───────────────────────────────────────────────────────────
@@ -222,8 +300,67 @@ function startJob(type, scriptPath, args, cwd, meta) {
 
 // ── REST endpoints ────────────────────────────────────────────────────────────
 
+// ── Models ────────────────────────────────────────────────────────────────────
+
+// GET /api/models
+app.get("/api/models", (req, res) => {
+  res.json(dbAll(`SELECT * FROM models ORDER BY name ASC`));
+});
+
+// POST /api/models  { name, path }
+app.post("/api/models", (req, res) => {
+  const { name, path: mpath } = req.body;
+  if (!name || !mpath) return res.status(400).json({ error: "name and path required" });
+  // Validate model.json exists
+  try {
+  const detected = detectModelConfig(mpath);
+  if (!detected) return res.status(400).json({ error: "No recognised config found. Expected model.json, config.json, or model.py" });
+  } catch (e) {
+  return res.status(400).json({ error: e.message });
+  }
+  try {
+    dbRun(`INSERT INTO models (name, path, created_at) VALUES (?, ?, ?)`, [name, mpath, Date.now()]);
+    const row = dbGet(`SELECT * FROM models WHERE name = ?`, [name]);
+    res.status(201).json(row);
+  } catch (e) {
+    res.status(409).json({ error: "Model name already exists" });
+  }
+});
+
+// DELETE /api/models/:id
+app.delete("/api/models/:id", (req, res) => {
+  dbRun(`DELETE FROM models WHERE id = ?`, [parseInt(req.params.id)]);
+  res.json({ ok: true });
+});
+
+// ── Datasets ──────────────────────────────────────────────────────────────────
+
+// GET /api/datasets
+app.get("/api/datasets", (req, res) => {
+  res.json(dbAll(`SELECT * FROM datasets ORDER BY name ASC`));
+});
+
+// POST /api/datasets  { name, path }
+app.post("/api/datasets", (req, res) => {
+  const { name, path: dpath = "" } = req.body;
+  if (!name) return res.status(400).json({ error: "name required" });
+  try {
+    dbRun(`INSERT INTO datasets (name, path, created_at) VALUES (?, ?, ?)`, [name, dpath, Date.now()]);
+    const row = dbGet(`SELECT * FROM datasets WHERE name = ?`, [name]);
+    res.status(201).json(row);
+  } catch (e) {
+    res.status(409).json({ error: "Dataset name already exists" });
+  }
+});
+
+// DELETE /api/datasets/:id
+app.delete("/api/datasets/:id", (req, res) => {
+  dbRun(`DELETE FROM datasets WHERE id = ?`, [parseInt(req.params.id)]);
+  res.json({ ok: true });
+});
+
 // GET /api/jobs  — list all jobs (with optional ?search=)
-app.get("/ai/jobs", (req, res) => {
+app.get("/api/jobs", (req, res) => {
   const q = (req.query.search || "").trim();
   const like = `%${q}%`;
   const jobs = q
@@ -236,24 +373,27 @@ app.get("/ai/jobs", (req, res) => {
 });
 
 // GET /api/jobs/:id  — single job detail
-app.get("/ai/jobs/:id", (req, res) => {
+app.get("/api/jobs/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const job = dbGet(`SELECT * FROM jobs WHERE id = ?`, [id]);
   if (!job) return res.status(404).json({ error: "Not found" });
 
   // Attach model script info if available
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(job.model_path, "model.json"), "utf8"));
+  const cfg = loadModelConfig(job.model_path);
+  if (cfg) {
     job.train_script = cfg.train_script || null;
     job.run_script = cfg.run_script || null;
     job.dataset_param = cfg.dataset_param || null;
-  } catch (_) { }
+    job.model_type = cfg.model_type || "custom";
+  }
+  } catch (_) { } 
 
   res.json(enrichJob({ ...job, duration_ms: procs.has(id) ? Date.now() - job.started_at : job.duration_ms }));
 });
 
 // GET /api/jobs/:id/log?offset=N  — incremental log fetch
-app.get("/ai/jobs/:id/log", (req, res) => {
+app.get("/api/jobs/:id/log", (req, res) => {
   const job = dbGet(`SELECT log_file FROM jobs WHERE id = ?`, [req.params.id]);
   if (!job?.log_file || !fs.existsSync(job.log_file))
     return res.json({ log: "", size: 0 });
@@ -273,30 +413,29 @@ app.get("/ai/jobs/:id/log", (req, res) => {
 });
 
 // GET /api/jobs/:id/progress
-app.get("/ai/progress/:id", (req, res) => {
+app.get("/api/jobs/:id/progress", (req, res) => {
   const id = parseInt(req.params.id);
   const p = progress.get(id);
   res.json(p
-    ? { percent: p.percent, detail: p.detail, busy: procs.has(id) }
-    : { percent: 0, detail: "", busy: false });
+    ? { percent: p.percent, detail: p.detail, running: procs.has(id) }
+    : { percent: 0, detail: "", running: false });
 });
 
 // GET /api/validate?modelPath=
-app.get("/ai/validate", (req, res) => {
+app.get("/api/validate", (req, res) => {
   const { modelPath } = req.query;
   if (!modelPath) return res.json({ valid: false, error: "No path" });
-  try {
-    const cfgPath = path.join(modelPath, "model.json");
-    if (!fs.existsSync(cfgPath)) return res.json({ valid: false, error: "model.json not found" });
-    const cfg = JSON.parse(fs.readFileSync(cfgPath, "utf8"));
-    const missing = ["name", "train_script", "run_script"].filter(k => !cfg[k]);
-    if (missing.length) return res.json({ valid: false, error: `Missing: ${missing.join(", ")}` });
-    res.json({ valid: true, config: cfg });
-  } catch { res.json({ valid: false, error: "Invalid model.json" }); }
+try {
+  const cfg = loadModelConfig(modelPath);
+  if (!cfg) return res.json({ valid: false, error: "No recognised config found. Expected model.json, config.json with model_type, or model.py" });
+  res.json({ valid: true, config: cfg });
+  } catch (e) {
+  res.json({ valid: false, error: e.message });
+  }
 });
 
 // GET /api/pick-folder
-app.get("/pick-folder", (req, res) => {
+app.get("/api/pick-folder", (req, res) => {
   let cmd;
   if (process.platform === "win32")
     cmd = `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; if ($d.ShowDialog() -eq 'OK') { $d.SelectedPath }"`;
@@ -309,7 +448,7 @@ app.get("/pick-folder", (req, res) => {
 });
 
 // GET /api/pick-file
-app.get("/pick-file", (req, res) => {
+app.get("/api/pick-file", (req, res) => {
   let cmd;
   if (process.platform === "win32")
     cmd = `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.OpenFileDialog; if ($d.ShowDialog() -eq 'OK') { $d.FileName }"`;
@@ -321,54 +460,99 @@ app.get("/pick-file", (req, res) => {
     res.json(err || !stdout.trim() ? { cancelled: true } : { path: stdout.trim() }));
 });
 
-// POST /api/train
-app.post("/ai/train", (req, res) => {
-  const { modelPath, datasetPath, extraArgs } = req.body;
-  if (!modelPath) return res.status(400).json({ error: "modelPath required" });
+// POST /api/train  — accepts { modelId, datasetId, extraArgs } OR legacy { modelPath, datasetPath, extraArgs }
+app.post("/api/train", (req, res) => {
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(modelPath, "model.json"), "utf8"));
+    // Resolve model — prefer modelId from DB, fall back to raw modelPath
+    let modelPath, modelName, datasetName = "";
+    if (req.body.modelId) {
+      const m = dbGet(`SELECT * FROM models WHERE id = ?`, [req.body.modelId]);
+      if (!m) return res.status(400).json({ error: "Model not found" });
+      modelPath = m.path; modelName = m.name;
+    } else {
+      modelPath = req.body.modelPath;
+      if (!modelPath) return res.status(400).json({ error: "modelId or modelPath required" });
+    }
+
+    // Resolve dataset
+    let datasetPath = "";
+    if (req.body.datasetId) {
+      const d = dbGet(`SELECT * FROM datasets WHERE id = ?`, [req.body.datasetId]);
+      if (!d) return res.status(400).json({ error: "Dataset not found" });
+      datasetName = d.name; datasetPath = d.path || d.name;
+    } else if (req.body.datasetPath) {
+      datasetPath = req.body.datasetPath; datasetName = datasetPath;
+    }
+
+    const cfg = loadModelConfig(modelPath);
+    if (!cfg) return res.status(400).json({ error: "No recognised model config found" });
+    if (!modelName) modelName = cfg.name;
     const scriptPath = path.join(modelPath, cfg.train_script);
     if (!fs.existsSync(scriptPath)) return res.status(400).json({ error: "train_script not found" });
 
+    const extraArgs = req.body.extraArgs || "";
     const args = datasetPath ? [cfg.dataset_param || "--dataset", datasetPath] : [];
-    if (extraArgs?.trim()) args.push(...extraArgs.trim().split(/\s+/));
+    if (extraArgs.trim()) args.push(...extraArgs.trim().split(/\s+/));
 
-    const dsMatch = extraArgs?.match(/--dataset[= ](\S+)/);
-    const dataset = datasetPath || (dsMatch ? dsMatch[1] : "");
+    // If dataset name not yet set, try to parse from extraArgs
+    if (!datasetName) {
+      const dsMatch = extraArgs.match(/--dataset[= ](\S+)/);
+      if (dsMatch) datasetName = dsMatch[1];
+    }
 
     const jobId = startJob("train", scriptPath, args, modelPath, {
-      modelName: cfg.name, modelPath, dataset, extraArgs: extraArgs || "",
+      modelName, modelPath, dataset: datasetName, extraArgs,
     });
     res.status(202).json({ ok: true, jobId });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// POST /api/run
-app.post("/ai/run", (req, res) => {
-  const { modelPath, extraArgs } = req.body;
-  if (!modelPath) return res.status(400).json({ error: "modelPath required" });
+// POST /api/run  — accepts { modelId, datasetId, extraArgs } OR legacy { modelPath, extraArgs }
+app.post("/api/run", (req, res) => {
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(modelPath, "model.json"), "utf8"));
+    let modelPath, modelName, datasetName = "";
+    if (req.body.modelId) {
+      const m = dbGet(`SELECT * FROM models WHERE id = ?`, [req.body.modelId]);
+      if (!m) return res.status(400).json({ error: "Model not found" });
+      modelPath = m.path; modelName = m.name;
+    } else {
+      modelPath = req.body.modelPath;
+      if (!modelPath) return res.status(400).json({ error: "modelId or modelPath required" });
+    }
+
+    if (req.body.datasetId) {
+      const d = dbGet(`SELECT * FROM datasets WHERE id = ?`, [req.body.datasetId]);
+      if (!d) return res.status(400).json({ error: "Dataset not found" });
+      datasetName = d.name;
+    }
+
+    const cfg = loadModelConfig(modelPath);
+    if (!cfg) return res.status(400).json({ error: "No recognised model config found" });
+    if (!modelName) modelName = cfg.name;
     const scriptPath = path.join(modelPath, cfg.run_script);
     if (!fs.existsSync(scriptPath)) return res.status(400).json({ error: "run_script not found" });
 
+    const extraArgs = req.body.extraArgs || "";
     const args = [];
     if (cfg.model_param)
-      args.push(cfg.model_param, path.join(modelPath, cfg.model_path || "lag-llama.ckpt"));
-    if (extraArgs?.trim()) args.push(...extraArgs.trim().split(/\s+/));
+      args.push(cfg.model_param, cfg.model_path ? path.join(modelPath, cfg.model_path) : modelPath);
+    if (extraArgs.trim()) args.push(...extraArgs.trim().split(/\s+/));
 
-    const dsMatch = extraArgs?.match(/--dataset[= ](\S+)/);
-    const dataset = dsMatch ? dsMatch[1] : "";
+    if (!datasetName) {
+      const dsMatch = extraArgs.match(/--dataset[= ](\S+)/);
+      if (dsMatch) datasetName = dsMatch[1];
+    }
 
     const jobId = startJob("run", scriptPath, args, modelPath, {
-      modelName: cfg.name, modelPath, dataset, extraArgs: extraArgs || "",
+      modelName, modelPath, dataset: datasetName, extraArgs,
     });
     res.status(202).json({ ok: true, jobId });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+
 // POST /api/cancel  { jobId }
-app.post("/ai/cancel", (req, res) => {
+app.post("/api/cancel", (req, res) => {
   const id = parseInt(req.body.jobId);
   const child = procs.get(id);
 
