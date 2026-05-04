@@ -258,9 +258,10 @@
       opacity:0;transform:translateY(16px) scale(0.97);
       transition:opacity 0.2s ease,transform 0.2s cubic-bezier(0.34,1.2,0.64,1);
       pointer-events:none}
+    #dataset-modal{max-width:880px; max-height:92vh}
     .info-modal.show{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
-    .im-header{display:flex;align-items:center;justify-content:space-between;
-      padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0,212,255,0.04);flex-shrink:0}
+    .im-header{opacity:1;display:flex;align-items:center;justify-content:space-between;
+      padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0, 0, 0, 0);flex-shrink:0}
     .im-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
       letter-spacing:0.15em;text-transform:uppercase;color:var(--accent)}
     .im-close{background:none;border:none;color:var(--text-dim);cursor:pointer;
@@ -295,10 +296,10 @@
     .im-badge.custom{color:var(--warn);border-color:rgba(255,179,71,0.25);background:rgba(255,179,71,0.07)}
     .im-badge.family{color:var(--train-col);border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08)}
     .im-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:8px 0}
-    .im-table-wrap{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:4px;
+    .im-table-wrap{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:4px;
       scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .im-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10px}
-    .im-table thead th{background:rgba(0,212,255,0.06);color:var(--text-muted);font-weight:500;
+    .im-table thead th{background: #0b1018;color:var(--text-muted);font-weight:500;
       letter-spacing:0.06em;text-transform:uppercase;font-size:9px;position:sticky;top:0;z-index:1}
     .im-table th,.im-table td{padding:5px 8px;text-align:left;border-bottom:1px solid rgba(30,37,48,0.4);white-space:nowrap}
     .im-table tbody tr:last-child td{border-bottom:none}
@@ -990,10 +991,23 @@ async function triggerDatasetModal(id){
     try{ const r=await fetch(`${BACKEND}/api/dataset-files?path=${encodeURIComponent(ds.path)}`).then(r=>r.json()); files=r.files||[]; }catch(_){}
   }
   let preview = null;
+  let previewError = null;
   try{
     const r = await fetch(`${BACKEND}/api/dataset-preview?datasetId=${id}&limit=20`);
-    if(r.ok) preview = await r.json();
-  }catch(_){}
+    if(r.ok){
+      preview = await r.json();
+    } else if(r.status === 404){
+      previewError = "endpoint /api/dataset-preview not found — restart the backend with the updated server.js";
+    } else {
+      let body = null;
+      try{ body = await r.json(); }catch(_){}
+      previewError = body?.error
+        ? `backend error (${r.status}): ${body.error}`
+        : `backend returned HTTP ${r.status}`;
+    }
+  }catch(e){
+    previewError = `could not reach backend: ${e.message}`;
+  }
 
   const detailsBlock = details ? `
     <div class="im-divider"></div>
@@ -1054,10 +1068,13 @@ async function triggerDatasetModal(id){
       <div class="im-table-meta">${esc(totalNote)}${preview.note ? ' · '+esc(preview.note) : ''}</div>
     `;
   } else {
+    const reason = previewError
+      || (preview && preview.error)
+      || "no rows returned";
     previewBlock = `
       <div class="im-divider"></div>
       <div class="im-section-title">Data preview</div>
-      <div class="im-empty" style="padding:14px 0">No preview available — backend has no /api/dataset-preview endpoint for this dataset.</div>
+      <div class="im-empty" style="padding:14px 0">No preview available — ${esc(reason)}</div>
     `;
   }
 
