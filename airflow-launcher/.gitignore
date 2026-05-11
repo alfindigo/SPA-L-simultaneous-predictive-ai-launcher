@@ -1,0 +1,5 @@
+.env
+airflow-logs/
+dags/__pycache__/
+dags/energy_data.csv
+dags/australian_electricity_demand.csv
