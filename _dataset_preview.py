@@ -1,151 +1,84 @@
-#!/usr/bin/env python3
-"""Dataset preview helper for the AI Model Launcher.
-
-Usage:
-    _dataset_preview.py <name> <path> <limit>
-
-If <path> is empty, treat <name> as a GluonTS named dataset and return one
-row per series (up to <limit>) with item_id / start / length / first / last /
-mean.
-
-If <path> is non-empty, try to read a tabular file (csv / parquet / json /
-jsonl) — or the first such file inside a directory — and return its first
-<limit> rows.
 """
-
+_dataset_preview.py — Universal dataset preview helper.
+Usage: python _dataset_preview.py <name> <path> <limit>
+If path is empty, treats name as a GluonTS built-in.
+If path is a CSV or JSON, loads it directly.
+"""
+import sys
 import json
 import os
-import sys
-
-
-def emit(obj):
-    sys.stdout.write(json.dumps(obj, default=str))
-    sys.exit(0)
-
-
-def fail(msg):
-    sys.stderr.write(str(msg))
-    sys.exit(1)
-
-
-def _safe_len(x):
-    try:
-        return len(x)
-    except Exception:
-        return None
-
-
-def _safe_float(x):
-    try:
-        return float(x)
-    except Exception:
-        return None
-
 
 def preview_gluonts(name, limit):
-    try:
-        from gluonts.dataset.repository import get_dataset
-    except Exception as e:
-        fail(f"gluonts not installed: {e}")
-
-    try:
-        ds = get_dataset(name)
-    except Exception as e:
-        fail(f"could not load dataset '{name}': {e}")
-
+    from gluonts.dataset.repository.datasets import get_dataset
+    dataset = get_dataset(name)
+    test_list = list(dataset.test)
     rows = []
-    train = list(ds.train)
-    for i, entry in enumerate(train[:limit]):
-        target = entry.get("target", [])
-        length = _safe_len(target) or 0
-        first = _safe_float(target[0]) if length else None
-        last = _safe_float(target[-1]) if length else None
-        mean = None
-        if length:
-            try:
-                mean = float(sum(target) / length)
-            except Exception:
-                mean = None
+    for entry in test_list[:limit]:
+        target = entry["target"]
         rows.append({
-            "item_id": str(entry.get("item_id", i)),
-            "start": str(entry.get("start", "")),
-            "length": length,
-            "first": round(first, 4) if first is not None else None,
-            "last": round(last, 4) if last is not None else None,
-            "mean": round(mean, 4) if mean is not None else None,
+            "item_id": entry.get("item_id", f"series_{len(rows)}"),
+            "start":   str(entry["start"]),
+            "length":  len(target),
+            "first":   round(float(target[0]), 4) if len(target) > 0 else None,
+            "last":    round(float(target[-1]), 4) if len(target) > 0 else None,
+            "mean":    round(float(sum(target) / len(target)), 4) if len(target) > 0 else None,
         })
-
-    note_bits = []
-    try:
-        note_bits.append(f"freq={ds.metadata.freq}")
-    except Exception:
-        pass
-    try:
-        note_bits.append(f"prediction_length={ds.metadata.prediction_length}")
-    except Exception:
-        pass
-
-    emit({
+    return {
         "columns": ["item_id", "start", "length", "first", "last", "mean"],
         "rows": rows,
-        "total": len(train),
-        "note": ", ".join(note_bits) if note_bits else None,
-    })
+        "total": len(test_list),
+        "note": f"freq={dataset.metadata.freq} prediction_length={dataset.metadata.prediction_length}",
+    }
 
-
-def preview_path(path_, limit):
-    if os.path.isdir(path_):
-        for f in sorted(os.listdir(path_)):
-            if f.lower().endswith((".csv", ".parquet", ".json", ".jsonl")):
-                path_ = os.path.join(path_, f)
+def preview_csv(path, limit):
+    import csv
+    rows = []
+    with open(path, newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader):
+            if i >= limit:
                 break
-        else:
-            fail(f"no csv/parquet/json file found in {path_}")
+            rows.append(row)
+    # Count total rows
+    total = 0
+    with open(path, newline='', encoding='utf-8') as f:
+        total = sum(1 for _ in f) - 1  # subtract header
+    columns = list(rows[0].keys()) if rows else []
+    return {
+        "columns": columns,
+        "rows": rows,
+        "total": total,
+        "note": f"CSV file — {total} rows",
+    }
 
-    try:
-        import pandas as pd
-    except Exception as e:
-        fail(f"pandas not installed: {e}")
-
-    p = path_.lower()
-    try:
-        if p.endswith(".csv"):
-            df = pd.read_csv(path_, nrows=limit)
-        elif p.endswith(".parquet"):
-            df = pd.read_parquet(path_).head(limit)
-        elif p.endswith(".jsonl"):
-            df = pd.read_json(path_, lines=True, nrows=limit)
-        elif p.endswith(".json"):
-            df = pd.read_json(path_).head(limit)
-        else:
-            fail(f"unsupported file type: {path_}")
-    except Exception as e:
-        fail(f"could not read file: {e}")
-
-    df = df.fillna("")
-    emit({
-        "columns": [str(c) for c in df.columns],
-        "rows": df.to_dict(orient="records"),
-        "total": int(len(df)),
-        "note": f"path={path_}",
-    })
-
-
-def main():
-    if len(sys.argv) < 4:
-        fail("usage: _dataset_preview.py <name> <path> <limit>")
-    name = sys.argv[1]
-    ds_path = sys.argv[2]
-    try:
-        limit = int(sys.argv[3])
-    except Exception:
-        limit = 20
-
-    if ds_path:
-        preview_path(ds_path, limit)
-    else:
-        preview_gluonts(name, limit)
-
+def preview_json(path, limit):
+    with open(path, encoding='utf-8') as f:
+        data = json.load(f)
+    if isinstance(data, list):
+        rows = data[:limit]
+        columns = list(rows[0].keys()) if rows else []
+        return {"columns": columns, "rows": rows, "total": len(data), "note": "JSON array"}
+    elif isinstance(data, dict):
+        rows = [{"key": k, "value": str(v)[:100]} for k, v in list(data.items())[:limit]]
+        return {"columns": ["key", "value"], "rows": rows, "total": len(data), "note": "JSON object"}
+    return {"columns": [], "rows": [], "total": 0, "note": "Unrecognised JSON structure"}
 
 if __name__ == "__main__":
-    main()
+    name  = sys.argv[1] if len(sys.argv) > 1 else ""
+    dpath = sys.argv[2] if len(sys.argv) > 2 else ""
+    limit = int(sys.argv[3]) if len(sys.argv) > 3 else 20
+
+    try:
+        if dpath and os.path.exists(dpath):
+            if dpath.endswith(".csv"):
+                result = preview_csv(dpath, limit)
+            elif dpath.endswith(".json"):
+                result = preview_json(dpath, limit)
+            else:
+                # Try CSV as fallback
+                result = preview_csv(dpath, limit)
+        else:
+            result = preview_gluonts(name, limit)
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"error": str(e), "rows": [], "columns": [], "total": 0}))

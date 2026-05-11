@@ -15,36 +15,104 @@
       --text:#cdd6e0;--text-dim:#4a5568;--text-muted:#7a8fa3;
       --accent:#00d4ff;--success:#00e89a;--warn:#ffb347;--error:#ff5555;
       --train-col:#a78bfa;--run-col:#34d399;
+      --sidebar-w:220px;--sidebar-collapsed:52px;
     }
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;overflow:hidden}
     body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
       background-size:40px 40px}
-    .shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;padding:0 1.5rem}
-    /* ── header ── */
-    header{padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between}
-    .logo{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-    .tagline{font-size:20px;font-weight:300;letter-spacing:-0.02em}
-    .tagline strong{font-weight:500}
-    .header-status{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:right;line-height:1.8}
-    .status-pip{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-dim);margin-right:6px;vertical-align:middle}
+
+    /* ── layout ── */
+    .app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden}
+
+    /* ── sidebar ── */
+    .sidebar{
+      width:var(--sidebar-w);min-width:var(--sidebar-collapsed);
+      background:var(--bg-panel);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;flex-shrink:0;
+      transition:width 0.2s ease;overflow:hidden;
+    }
+    .sidebar.collapsed{width:var(--sidebar-collapsed)}
+    .sidebar-header{
+      padding:1.2rem 0.75rem 1rem;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:10px;min-height:72px;
+    }
+    .sidebar-logo-block{flex:1;min-width:0;overflow:hidden}
+    .sidebar-logo{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);
+      white-space:nowrap;opacity:1;transition:opacity 0.15s}
+    .sidebar-tagline{font-size:12px;font-weight:300;color:var(--text-muted);white-space:nowrap;
+      opacity:1;transition:opacity 0.15s}
+    .sidebar.collapsed .sidebar-logo-block{opacity:0;pointer-events:none}
+    .btn-collapse{
+      background:none;border:1px solid var(--border-hi);border-radius:4px;
+      color:var(--text-dim);width:28px;height:28px;cursor:pointer;
+      font-family:'DM Mono',monospace;font-size:12px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.15s;
+    }
+    .btn-collapse:hover{color:var(--accent);border-color:var(--accent)}
+
+    /* nav items */
+    .sidebar-nav{flex:1;padding:0.5rem 0;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:9px 14px;cursor:pointer;border-radius:0;
+      font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;
+      text-transform:uppercase;color:var(--text-dim);
+      border:none;background:none;width:100%;text-align:left;
+      transition:all 0.12s;white-space:nowrap;position:relative;
+      border-left:2px solid transparent;
+    }
+    .nav-item:hover{color:var(--text-muted);background:rgba(0,212,255,0.04)}
+    .nav-item.active{color:var(--accent);background:rgba(0,212,255,0.07);border-left-color:var(--accent)}
+    .nav-icon{
+      width:26px;height:26px;border-radius:4px;flex-shrink:0;
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+      color:var(--text-dim);transition:all 0.12s;
+    }
+    .nav-item.active .nav-icon{background:rgba(0,212,255,0.12);border-color:rgba(0,212,255,0.3);color:var(--accent)}
+    .nav-item:hover .nav-icon{border-color:var(--border-hi);color:var(--text-muted)}
+    .nav-label{flex:1;overflow:hidden;opacity:1;transition:opacity 0.15s}
+    .sidebar.collapsed .nav-label{opacity:0;pointer-events:none}
+    .nav-item.new-job .nav-icon{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--accent)}
+    .nav-item.new-job{color:var(--accent)}
+
+    /* sidebar footer */
+    .sidebar-footer{padding:0.75rem;border-top:1px solid var(--border)}
+    .status-row{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden}
+    .status-pip{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
     .status-pip.ready{background:var(--success)}
     .status-pip.busy{background:var(--warn);animation:pulse 1s infinite}
     .status-pip.error{background:var(--error)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-    /* ── nav ── */
-    .nav-tabs{display:flex;gap:4px;padding:1rem 0 0;border-bottom:1px solid var(--border)}
-    .nav-tab{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;
-      color:var(--text-dim);background:none;border:none;padding:8px 14px;cursor:pointer;
-      border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s}
-    .nav-tab:hover{color:var(--text-muted)}
-    .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .status-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);
+      opacity:1;transition:opacity 0.15s}
+    .sidebar.collapsed .status-text{opacity:0}
+    .clock{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);
+      margin-top:4px;opacity:1;transition:opacity 0.15s}
+    .sidebar.collapsed .clock{opacity:0}
+
+    /* ── main content ── */
+    .main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+    .main-header{
+      padding:1rem 1.5rem;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      flex-shrink:0;
+    }
+    .main-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;
+      text-transform:uppercase;color:var(--text-muted)}
+    .main-actions{display:flex;gap:8px;align-items:center}
+    .main-body{flex:1;overflow-y:auto;padding:1.5rem;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
     /* ── views ── */
-    .view{display:none;flex:1;padding:1.5rem 0;flex-direction:column;gap:1.5rem}
+    .view{display:none;flex-direction:column;gap:1.5rem}
     .view.active{display:flex}
-    /* ══════════════════════════════════════════
-       LIST VIEW
-    ══════════════════════════════════════════ */
+
+    /* ══ LIST VIEW ══ */
     .list-toolbar{display:flex;gap:10px;align-items:center}
     .search-input{flex:1;height:38px;background:var(--bg-panel);border:1px solid var(--border-hi);border-radius:4px;
       color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:0 12px}
@@ -87,32 +155,63 @@
     .list-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center}
     .running-pill{display:inline-flex;align-items:center;gap:6px;color:var(--warn)}
     .running-pip{width:6px;height:6px;border-radius:50%;background:var(--warn);animation:pulse 1s infinite}
-    /* ══════════════════════════════════════════
-       MANAGE VIEW
-    ══════════════════════════════════════════ */
-    .manage-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-    .manage-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-    .manage-head{padding:12px 16px;border-bottom:1px solid var(--border)}
-    .manage-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
-    .manage-list{max-height:260px;overflow-y:auto}
-    .manage-item{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(30,37,48,0.4);gap:8px}
-    .manage-item:last-child{border-bottom:none}
-    .manage-item-name{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .manage-item-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .btn-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 4px;transition:color 0.15s;flex-shrink:0}
-    .btn-del:hover{color:var(--error)}
-    .manage-add{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px}
-    .manage-input{flex:1;height:32px;background:var(--bg-input);border:1px solid var(--border-hi);border-radius:4px;
-      color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:0 8px;min-width:0}
-    .manage-input:focus{outline:none;border-color:var(--accent)}
-    .manage-input::placeholder{color:var(--text-dim)}
-    .btn-add{height:32px;padding:0 12px;border-radius:4px;border:1px solid rgba(0,212,255,0.3);
+
+    /* ══ MODELS VIEW ══ */
+    .models-grid{display:flex;flex-direction:column;gap:12px}
+    .model-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color 0.15s}
+    .model-card:hover{border-color:var(--border-hi)}
+    .model-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+    .model-card-icon{width:36px;height:36px;border-radius:6px;background:rgba(0,212,255,0.08);
+      border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;
+      font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);flex-shrink:0}
+    .model-card-info{flex:1;min-width:0}
+    .model-card-name{font-size:14px;font-weight:500;color:var(--text)}
+    .model-card-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+    .model-card-actions{display:flex;gap:6px;align-items:center}
+    .btn-info-sm{height:28px;padding:0 10px;border-radius:3px;border:1px solid var(--border-hi);
+      background:transparent;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);
+      cursor:pointer;transition:all 0.15s;letter-spacing:0.06em;text-transform:uppercase}
+    .btn-info-sm:hover{color:var(--accent);border-color:var(--accent)}
+    .btn-del-sm{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:4px 6px;transition:color 0.15s}
+    .btn-del-sm:hover{color:var(--error)}
+    .model-card-body{padding:0 16px 14px;display:flex;flex-wrap:wrap;gap:8px}
+    .meta-chip{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);
+      display:flex;gap:5px;padding:3px 8px;background:rgba(255,255,255,0.02);
+      border:1px solid var(--border);border-radius:3px}
+    .meta-chip span{color:var(--accent)}
+
+    /* ══ DATASETS VIEW ══ */
+    .datasets-grid{display:flex;flex-direction:column;gap:12px}
+    .dataset-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color 0.15s}
+    .dataset-card:hover{border-color:var(--border-hi)}
+    .dataset-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px}
+    .dataset-card-icon{width:36px;height:36px;border-radius:6px;background:rgba(52,211,153,0.08);
+      border:1px solid rgba(52,211,153,0.2);display:flex;align-items:center;justify-content:center;
+      font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--run-col);flex-shrink:0}
+    .dataset-card-info{flex:1;min-width:0}
+    .dataset-card-name{font-size:14px;font-weight:500;color:var(--text)}
+    .dataset-card-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px}
+
+    /* ══ ADD FORMS ══ */
+    .add-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    .add-section-head{padding:10px 14px;border-bottom:1px solid var(--border)}
+    .add-section-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+    .add-form{padding:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+    .add-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px}
+    .add-field-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--text-dim)}
+    .add-input{height:34px;background:var(--bg-input);border:1px solid var(--border-hi);border-radius:4px;
+      color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:0 10px}
+    .add-input:focus{outline:none;border-color:var(--accent)}
+    .add-input::placeholder{color:var(--text-dim)}
+    .btn-add{height:34px;padding:0 16px;border-radius:4px;border:1px solid rgba(0,212,255,0.3);
       background:rgba(0,212,255,0.06);font-family:'DM Mono',monospace;font-size:11px;
-      color:var(--accent);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+      color:var(--accent);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;align-self:flex-end}
     .btn-add:hover{background:rgba(0,212,255,0.12)}
-    /* ══════════════════════════════════════════
-       JOB VIEW
-    ══════════════════════════════════════════ */
+
+    /* ══ JOB VIEW ══ */
     .job-view-header{display:flex;align-items:center;gap:12px}
     .btn-back{background:none;border:1px solid var(--border-hi);border-radius:4px;color:var(--text-dim);
       font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;cursor:pointer;transition:all 0.15s}
@@ -131,12 +230,9 @@
     .panel-name{font-size:14px;font-weight:500;color:var(--text);margin-left:auto}
     .panel-body{padding:16px;display:flex;flex-direction:column;gap:12px}
     .field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px}
-
-    /* ── custom select with per-row ⓘ ── */
     .custom-select{position:relative;width:100%}
     .custom-select.disabled{opacity:0.4;pointer-events:none}
-    .cs-trigger{
-      width:100%;height:36px;background:var(--bg-input);border:1px solid var(--border-hi);
+    .cs-trigger{width:100%;height:36px;background:var(--bg-input);border:1px solid var(--border-hi);
       border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;
       padding:0 10px;cursor:pointer;transition:border-color 0.15s;
       display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}
@@ -146,29 +242,23 @@
     .cs-label.placeholder{color:var(--text-dim)}
     .cs-chevron{color:var(--text-dim);font-size:10px;transition:transform 0.15s}
     .custom-select.open .cs-chevron{transform:rotate(180deg);color:var(--accent)}
-    .cs-panel{
-      position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;
+    .cs-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;
       background:#0b1018;border:1px solid var(--border-hi);border-radius:4px;
-      box-shadow:0 12px 32px rgba(0,0,0,0.6);
-      max-height:260px;overflow-y:auto;display:none;
+      box-shadow:0 12px 32px rgba(0,0,0,0.6);max-height:260px;overflow-y:auto;display:none;
       scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .custom-select.open .cs-panel{display:block}
     .cs-empty{padding:14px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
-    .cs-option{
-      display:flex;align-items:center;gap:6px;
-      padding:0 4px 0 10px;height:34px;
+    .cs-option{display:flex;align-items:center;gap:6px;padding:0 4px 0 10px;height:34px;
       font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
       cursor:pointer;border-bottom:1px solid rgba(30,37,48,0.4);transition:background 0.1s}
     .cs-option:last-child{border-bottom:none}
     .cs-option:hover{background:rgba(0,212,255,0.06)}
     .cs-option.selected{background:rgba(0,212,255,0.08);color:var(--accent)}
     .cs-option-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .cs-info{
-      background:none;border:none;cursor:pointer;color:var(--text-dim);
+    .cs-info{background:none;border:none;cursor:pointer;color:var(--text-dim);
       font-size:14px;line-height:1;padding:4px 7px;border-radius:3px;
       transition:color 0.15s,background 0.15s;flex-shrink:0}
     .cs-info:hover{color:var(--accent);background:rgba(0,212,255,0.12)}
-
     .path-hint{font-family:'DM Mono',monospace;font-size:11px;line-height:1.5;padding:6px 10px;border-radius:3px;display:none;margin-top:6px}
     .path-hint.show{display:block}
     .path-hint.ok{color:var(--success);background:rgba(0,232,154,0.07);border:1px solid rgba(0,232,154,0.2)}
@@ -223,11 +313,51 @@
     .log-box .err{color:#8a5a5a}
     .log-box .done{color:var(--success);font-weight:500}
     .log-box .fail{color:var(--error)}
-    .log-box .sep{color:var(--border-hi);user-select:none}
-    /* ── footer ── */
-    footer{border-top:1px solid var(--border);padding:1rem 0;display:flex;align-items:center;justify-content:space-between}
-    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
-    .footer-right{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;gap:16px}
+    .forecast-panel{display:none}
+    .forecast-panel.show{display:block}
+    .forecast-img{display:block;width:100%;height:auto;border-radius:4px;background:#fff}
+
+    /* ══ SCHEDULES VIEW ══ */
+    .sched-toolbar{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+    .sched-form{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;flex:1}
+    .sched-select{height:36px;background:var(--bg-panel);border:1px solid var(--border-hi);border-radius:4px;
+      color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:0 8px;min-width:100px}
+    .sched-select:focus{outline:none;border-color:var(--accent)}
+    .sched-input{height:36px;background:var(--bg-panel);border:1px solid var(--border-hi);border-radius:4px;
+      color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:0 10px;width:160px}
+    .sched-input:focus{outline:none;border-color:var(--accent)}
+    .sched-input::placeholder{color:var(--text-dim)}
+    .sched-field{display:flex;flex-direction:column;gap:3px}
+    .sched-field-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--text-dim)}
+    .sched-table{width:100%;border-collapse:collapse}
+    .sched-table thead tr{border-bottom:1px solid var(--border)}
+    .sched-table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+      color:var(--text-dim);padding:10px 14px;text-align:left;font-weight:400;white-space:nowrap}
+    .sched-table td{padding:11px 14px;border-bottom:1px solid rgba(30,37,48,0.6);font-family:'DM Mono',monospace;
+      font-size:11px;color:var(--text-muted);vertical-align:middle}
+    .sched-table tbody tr:last-child td{border-bottom:none}
+    .sched-table td.name-cell{color:var(--text);font-weight:500}
+    .toggle-btn{height:26px;padding:0 10px;border-radius:3px;border:1px solid;font-family:'DM Mono',monospace;
+      font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
+    .toggle-btn.on{color:var(--success);border-color:rgba(0,232,154,0.3);background:rgba(0,232,154,0.07)}
+    .toggle-btn.on:hover{background:rgba(0,232,154,0.14)}
+    .toggle-btn.off{color:var(--text-dim);border-color:var(--border-hi);background:transparent}
+    .toggle-btn.off:hover{color:var(--warn);border-color:var(--warn)}
+    .run-now-btn{height:26px;padding:0 10px;border-radius:3px;border:1px solid rgba(0,212,255,0.25);
+      background:rgba(0,212,255,0.06);font-family:'DM Mono',monospace;font-size:10px;
+      color:var(--accent);cursor:pointer;transition:all 0.15s;margin-right:6px}
+    .run-now-btn:hover{background:rgba(0,212,255,0.14);border-color:var(--accent)}
+    .sched-actions{display:flex;align-items:center;gap:4px}
+    .last-status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;
+      font-size:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;border:1px solid}
+    .last-status-badge.done{color:var(--success);background:rgba(0,232,154,0.08);border-color:rgba(0,232,154,0.2)}
+    .last-status-badge.running{color:var(--warn);background:rgba(255,179,71,0.08);border-color:rgba(255,179,71,0.2)}
+    .last-status-badge.failed{color:var(--error);background:rgba(255,85,85,0.08);border-color:rgba(255,85,85,0.2)}
+    .last-status-badge.never{color:var(--text-dim);background:transparent;border-color:var(--border)}
+    .btn-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 4px;transition:color 0.15s}
+    .btn-del:hover{color:var(--error)}
+
     /* ── toast ── */
     .toast{position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;max-width:400px;padding:14px 18px;
       border-radius:6px;border:1px solid;font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;
@@ -241,40 +371,31 @@
     .toast-body{flex:1}
     .toast-title{font-weight:500;letter-spacing:0.05em;margin-bottom:2px}
     .toast-msg{opacity:0.75;font-size:11px}
+
     /* ── info modals ── */
-    .info-modal-overlay{
-      position:fixed;inset:0;z-index:8000;pointer-events:none;
+    .info-modal-overlay{position:fixed;inset:0;z-index:8000;pointer-events:none;
       display:flex;align-items:center;justify-content:center;
       background:transparent;transition:background 0.2s;padding:24px}
     .info-modal-overlay.active{pointer-events:all;background:rgba(0,0,0,0.55)}
-    .info-modal{
-      min-width:320px;max-width:560px;width:100%;
-      max-height:85vh;display:flex;flex-direction:column;
-      background:#0b1018;
-      border:1px solid var(--border-hi);
-      border-radius:8px;
+    .info-modal{min-width:320px;max-width:620px;width:100%;max-height:88vh;display:flex;flex-direction:column;
+      background:#0b1018;border:1px solid var(--border-hi);border-radius:8px;
       box-shadow:0 24px 64px rgba(0,0,0,0.85),0 0 0 1px rgba(0,212,255,0.06);
-      overflow:hidden;
-      opacity:0;transform:translateY(16px) scale(0.97);
-      transition:opacity 0.2s ease,transform 0.2s cubic-bezier(0.34,1.2,0.64,1);
-      pointer-events:none}
-    #dataset-modal{max-width:880px; max-height:92vh}
+      overflow:hidden;opacity:0;transform:translateY(16px) scale(0.97);
+      transition:opacity 0.2s ease,transform 0.2s cubic-bezier(0.34,1.2,0.64,1);pointer-events:none}
+    #dataset-modal{max-width:880px;max-height:92vh}
     .info-modal.show{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
-    .im-header{opacity:1;display:flex;align-items:center;justify-content:space-between;
-      padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0, 0, 0, 0);flex-shrink:0}
+    .im-header{display:flex;align-items:center;justify-content:space-between;
+      padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0);flex-shrink:0}
     .im-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
       letter-spacing:0.15em;text-transform:uppercase;color:var(--accent)}
-    .im-close{background:none;border:none;color:var(--text-dim);cursor:pointer;
-      font-size:14px;line-height:1;padding:2px 4px;transition:color 0.12s}
+    .im-close{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;line-height:1;padding:2px 4px;transition:color 0.12s}
     .im-close:hover{color:var(--text)}
     .im-body{padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;
       scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .im-row{display:flex;flex-direction:column;gap:3px}
     .im-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .im-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;
-      text-transform:uppercase;color:var(--text-dim)}
-    .im-value{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);
-      word-break:break-word;line-height:1.5}
+    .im-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim)}
+    .im-value{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);word-break:break-word;line-height:1.5}
     .im-value.accent{color:var(--accent)}
     .im-value.muted{color:var(--text-muted)}
     .im-value.success{color:var(--success)}
@@ -282,198 +403,371 @@
     .im-divider{height:1px;background:var(--border);margin:2px 0}
     .im-section-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
       letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+    .im-badge-row{display:flex;gap:6px;flex-wrap:wrap}
+    .im-badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid;font-weight:500;letter-spacing:0.05em;text-transform:uppercase}
+    .im-badge.model-type{color:var(--accent);border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.07)}
+    .im-badge.family{color:var(--train-col);border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08)}
+    .im-badge.gluon{color:var(--success);border-color:rgba(0,232,154,0.25);background:rgba(0,232,154,0.07)}
+    .im-badge.custom{color:var(--warn);border-color:rgba(255,179,71,0.25);background:rgba(255,179,71,0.07)}
     .im-filelist{display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto;
       scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .im-file{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);
       padding:4px 8px;border-radius:3px;background:rgba(255,255,255,0.02);
       display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .im-file-icon{flex-shrink:0;font-size:12px;opacity:0.6}
-    .im-badge-row{display:flex;gap:6px;flex-wrap:wrap}
-    .im-badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;
-      border-radius:3px;border:1px solid;font-weight:500;letter-spacing:0.05em;text-transform:uppercase}
-    .im-badge.model-type{color:var(--accent);border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.07)}
-    .im-badge.gluon{color:var(--success);border-color:rgba(0,232,154,0.25);background:rgba(0,232,154,0.07)}
-    .im-badge.custom{color:var(--warn);border-color:rgba(255,179,71,0.25);background:rgba(255,179,71,0.07)}
-    .im-badge.family{color:var(--train-col);border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08)}
     .im-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:8px 0}
     .im-table-wrap{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:4px;
       scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .im-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10px}
-    .im-table thead th{background: #0b1018;color:var(--text-muted);font-weight:500;
+    .im-table thead th{background:#0b1018;color:var(--text-muted);font-weight:500;
       letter-spacing:0.06em;text-transform:uppercase;font-size:9px;position:sticky;top:0;z-index:1}
-    .im-table th,.im-table td{padding:5px 8px;text-align:left;border-bottom:1px solid rgba(30,37,48,0.4);white-space:nowrap}
+    .im-table th,.im-table td{padding:3px 8px;text-align:left;border-bottom:1px solid rgba(30,37,48,0.4);white-space:nowrap}
     .im-table tbody tr:last-child td{border-bottom:none}
     .im-table td{color:var(--text-muted)}
     .im-table-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px}
-    /* ── forecast panel ── */
-    .forecast-panel{display:none}
-    .forecast-panel.show{display:block}
-    .forecast-img{display:block;width:100%;height:auto;border-radius:4px;background:#fff}
-    .forecast-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:30px 0}
+    .im-readme{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);
+      line-height:1.8;white-space:pre-wrap;word-break:break-word;
+      max-height:200px;overflow-y:auto;padding:10px;
+      background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:4px;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
+    /* footer */
+    .main-footer{border-top:1px solid var(--border);padding:0.6rem 1.5rem;
+      display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
+    .footer-right{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;gap:16px}
+    
+    /*pipeline*/
+    .btn-pipeline {
+      color: #00d4ff;
+      border-color: rgba(0,212,255,0.3);
+      background: rgba(0,212,255,0.06);
+    }
+    .btn-pipeline:hover:not(:disabled) {
+      background: rgba(0,212,255,0.14);
+      border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
-<div class="shell">
-  <header>
-    <div>
-      <div class="logo">AI Model Launcher</div>
-      <div class="tagline">Train. <strong>Run.</strong> Iterate.</div>
-    </div>
-    <div class="header-status">
-      <div><span class="status-pip" id="pip"></span><span id="status-label">idle</span></div>
-      <div id="clock">--:--:--</div>
-    </div>
-  </header>
-  <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-list"   onclick="showView('list')">Job History</button>
-    <button class="nav-tab"        id="tab-job"    onclick="showView('job',null)">Launcher</button>
-    <button class="nav-tab"        id="tab-manage" onclick="showView('manage')">Models & Datasets</button>
-  </div>
+<div class="app">
 
-  <!-- ══ LIST VIEW ══ -->
-  <div class="view active" id="view-list">
-    <div class="list-toolbar">
-      <input class="search-input" id="search-input" type="text" placeholder="Search model, dataset, type, status…" autocomplete="off"/>
-      <button class="btn-new" onclick="showView('job',null)">+ New Job</button>
-      <button class="btn-refresh-sm" onclick="loadJobs()">↻ Refresh</button>
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-block">
+        <div class="sidebar-logo">AI Launcher</div>
+        <div class="sidebar-tagline">Train. Run. Iterate.</div>
+      </div>
+      <button class="btn-collapse" id="btn-collapse" onclick="toggleSidebar()" title="Toggle sidebar">⇆</button>
     </div>
-    <div class="table-wrap">
-      <table class="jobs-table">
-        <thead><tr>
-          <th>#</th><th>Model</th><th>Dataset</th><th>Type</th>
-          <th>Status</th><th>Duration</th><th>Started</th><th>Fail Reason</th>
-        </tr></thead>
-        <tbody id="jobs-tbody">
-          <tr><td colspan="8"><div class="empty-state">Loading…</div></td></tr>
-        </tbody>
-      </table>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-list" onclick="showView('list')">
+        <span class="nav-icon">H</span>
+        <span class="nav-label">Job History</span>
+      </button>
+      <button class="nav-item" id="nav-models" onclick="showView('models')">
+        <span class="nav-icon">M</span>
+        <span class="nav-label">Models</span>
+      </button>
+      <button class="nav-item" id="nav-datasets" onclick="showView('datasets')">
+        <span class="nav-icon">D</span>
+        <span class="nav-label">Datasets</span>
+      </button>
+      <button class="nav-item" id="nav-schedules" onclick="showView('schedules')">
+        <span class="nav-icon">S</span>
+        <span class="nav-label">Schedules</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-row">
+        <span class="status-pip" id="pip"></span>
+        <span class="status-text" id="status-label">idle</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
     </div>
-    <div class="list-meta">
-      <span id="jobs-count">—</span>
-      <span id="running-pill"></span>
-    </div>
-  </div>
+  </aside>
 
-  <!-- ══ MANAGE VIEW ══ -->
-  <div class="view" id="view-manage">
-    <div class="manage-grid">
-      <div class="manage-section">
-        <div class="manage-head"><span class="manage-title">Models</span></div>
-        <div class="manage-list" id="models-list"></div>
-        <div class="manage-add">
-          <input class="manage-input" id="model-add-name" placeholder="Name (e.g. Lag-Llama)"/>
-          <input class="manage-input" id="model-add-path" placeholder="Folder path"/>
-          <button class="btn-add" onclick="addModel()">Add</button>
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <div class="main-header">
+      <span class="main-title" id="main-title">Job History</span>
+      <div class="main-actions" id="main-actions"></div>
+    </div>
+    <div class="main-body" id="main-body">
+
+      <!-- ══ LIST VIEW ══ -->
+      <div class="view active" id="view-list">
+        <div class="list-toolbar">
+          <input class="search-input" id="search-input" type="text" placeholder="Search model, dataset, type, status…" autocomplete="off"/>
+          <button class="btn-new" onclick="showView('job',null)">+ New Job</button>
+          <button class="btn-refresh-sm" onclick="loadJobs()">↻ Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table class="jobs-table">
+            <thead><tr>
+              <th>#</th><th>Model</th><th>Dataset</th><th>Type</th>
+              <th>Status</th><th>Duration</th><th>Started</th><th>Fail Reason</th>
+            </tr></thead>
+            <tbody id="jobs-tbody">
+              <tr><td colspan="8"><div class="empty-state">Loading…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="list-meta">
+          <span id="jobs-count">—</span>
+          <span id="running-pill"></span>
         </div>
       </div>
-      <div class="manage-section">
-        <div class="manage-head"><span class="manage-title">Datasets</span></div>
-        <div class="manage-list" id="datasets-list"></div>
-        <div class="manage-add" style="flex-direction:column;gap:8px">
-          <input class="manage-input" id="dataset-add-name" placeholder="Name (e.g. hospital)"/>
-          <input class="manage-input" id="dataset-add-path" placeholder="Path (optional — only for non-GluonTS datasets)"/>
-          <button class="btn-add" onclick="addDataset()">Add</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ══ JOB VIEW ══ -->
-  <div class="view" id="view-job">
-    <div class="job-view-header">
-      <button class="btn-back" onclick="showView('list')">← History</button>
-      <span class="job-view-title" id="job-view-title">New Job</span>
-      <span class="job-view-id"   id="job-view-id"></span>
-    </div>
-    <div class="readonly-banner" id="readonly-banner">
-      <span class="rb-badge">READONLY</span>
-      <span>Viewing a past job. <a href="#" onclick="showView('job',null);return false;" style="color:var(--accent)">Start a new job →</a></span>
-    </div>
-    <div class="panel panel-form">
-      <div class="panel-head">
-        <div class="panel-label">Model</div>
-        <div class="panel-name" id="model-name">—</div>
-      </div>
-      <div class="panel-body">
-        <div>
-          <div class="field-label">Model</div>
-          <div class="custom-select" id="model-select-wrap">
-            <button type="button" class="cs-trigger" id="model-trigger">
-              <span class="cs-label placeholder">— select model —</span>
-              <span class="cs-chevron">▾</span>
-            </button>
-            <div class="cs-panel" id="model-panel"></div>
-          </div>
-          <div class="path-hint" id="model-hint"></div>
-        </div>
-        <div class="model-info" id="model-info">
-          <div class="info-chip">train: <span id="info-train">—</span></div>
-          <div class="info-chip">run: <span id="info-run">—</span></div>
-          <div class="info-chip">dataset param: <span id="info-dparam">—</span></div>
-        </div>
-        <div>
-          <div class="field-label">Dataset</div>
-          <div class="custom-select disabled" id="dataset-select-wrap">
-            <button type="button" class="cs-trigger" id="dataset-trigger" disabled>
-              <span class="cs-label placeholder">— select model first —</span>
-              <span class="cs-chevron">▾</span>
-            </button>
-            <div class="cs-panel" id="dataset-panel"></div>
+      <!-- ══ MODELS VIEW ══ -->
+      <div class="view" id="view-models">
+        <div class="add-section">
+          <div class="add-section-head"><span class="add-section-title">Add Model</span></div>
+          <div class="add-form">
+            <div class="add-field">
+              <span class="add-field-label">Name</span>
+              <input class="add-input" id="model-add-name" placeholder="e.g. Lag-Llama"/>
+            </div>
+            <div class="add-field">
+              <span class="add-field-label">Folder path</span>
+              <input class="add-input" id="model-add-path" placeholder="C:\path\to\model"/>
+            </div>
+            <button class="btn-add" onclick="addModel()">Add Model</button>
           </div>
         </div>
-        <div class="extras-row">
-          <div class="field-label">Extra args (optional)</div>
-          <input class="extras-input" id="extra-args" type="text" placeholder="--num_samples 20 --context_length 48"/>
-        </div>
-        <div class="metrics-strip" id="metrics-strip">
-          <div class="metric-chip">status: <span id="metric-status">—</span></div>
-          <div class="metric-chip">duration: <span id="metric-duration">—</span></div>
-          <div id="metric-fail-wrap" style="display:none" class="metric-chip">reason: <span id="metric-fail" style="color:var(--error)">—</span></div>
+        <div class="models-grid" id="models-grid">
+          <div class="empty-state">Loading…</div>
         </div>
       </div>
-    </div>
-    <div class="actions" id="actions-bar">
-      <button class="btn-action btn-train" id="btn-train" disabled>Train</button>
-      <button class="btn-action btn-run"   id="btn-run"   disabled>Run</button>
-      <button class="btn-action btn-cancel" id="btn-cancel" disabled style="display:none">Cancel</button>
-    </div>
-    <div class="progress-wrap" id="progress-wrap">
-      <div class="progress-header">
-        <span class="progress-label" id="progress-label">Progress</span>
-        <span class="progress-pct"   id="progress-pct">0%</span>
+
+      <!-- ══ DATASETS VIEW ══ -->
+      <div class="view" id="view-datasets">
+        <div class="add-section">
+          <div class="add-section-head"><span class="add-section-title">Add Dataset</span></div>
+          <div class="add-form">
+            <div class="add-field">
+              <span class="add-field-label">Name</span>
+              <input class="add-input" id="dataset-add-name" placeholder="e.g. hospital"/>
+            </div>
+            <div class="add-field">
+              <span class="add-field-label">Path (optional)</span>
+              <input class="add-input" id="dataset-add-path" placeholder="Leave blank for GluonTS built-ins"/>
+            </div>
+            <button class="btn-add" onclick="addDataset()">Add Dataset</button>
+          </div>
+        </div>
+        <div class="datasets-grid" id="datasets-grid">
+          <div class="empty-state">Loading…</div>
+        </div>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="progress-detail" id="progress-detail"></div>
+
+      <!-- ══ JOB VIEW ══ -->
+      <div class="view" id="view-job">
+        <div class="job-view-header">
+          <button class="btn-back" onclick="showView('list')">← History</button>
+          <span class="job-view-title" id="job-view-title">New Job</span>
+          <span class="job-view-id" id="job-view-id"></span>
+        </div>
+        <div class="readonly-banner" id="readonly-banner">
+          <span class="rb-badge">READONLY</span>
+          <span>Viewing a past job. <a href="#" onclick="showView('job',null);return false;" style="color:var(--accent)">Start a new job →</a></span>
+        </div>
+        <div class="panel panel-form">
+          <div class="panel-head">
+            <div class="panel-label">Model</div>
+            <div class="panel-name" id="model-name">—</div>
+          </div>
+          <div class="panel-body">
+            <div>
+              <div class="field-label">Model</div>
+              <div class="custom-select" id="model-select-wrap">
+                <button type="button" class="cs-trigger" id="model-trigger">
+                  <span class="cs-label placeholder">— select model —</span>
+                  <span class="cs-chevron">▾</span>
+                </button>
+                <div class="cs-panel" id="model-panel"></div>
+              </div>
+              <div class="path-hint" id="model-hint"></div>
+            </div>
+            <div class="model-info" id="model-info">
+              <div class="info-chip">train: <span id="info-train">—</span></div>
+              <div class="info-chip">run: <span id="info-run">—</span></div>
+              <div class="info-chip">dataset param: <span id="info-dparam">—</span></div>
+            </div>
+            <div>
+              <div class="field-label">Dataset</div>
+              <div class="custom-select disabled" id="dataset-select-wrap">
+                <button type="button" class="cs-trigger" id="dataset-trigger" disabled>
+                  <span class="cs-label placeholder">— select model first —</span>
+                  <span class="cs-chevron">▾</span>
+                </button>
+                <div class="cs-panel" id="dataset-panel"></div>
+              </div>
+            </div>
+            <div class="extras-row">
+              <div class="field-label">Extra args (optional)</div>
+              <input class="extras-input" id="extra-args" type="text" placeholder="--num_samples 20 --context_length 48"/>
+            </div>
+            <div class="metrics-strip" id="metrics-strip">
+              <div class="metric-chip">status: <span id="metric-status">—</span></div>
+              <div class="metric-chip">duration: <span id="metric-duration">—</span></div>
+              <div id="metric-fail-wrap" style="display:none" class="metric-chip">reason: <span id="metric-fail" style="color:var(--error)">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions" id="actions-bar">
+          <button class="btn-action btn-train" id="btn-train" disabled>Train</button>
+          <button class="btn-action btn-run" id="btn-run" disabled>Run</button>
+          <button class="btn-action btn-pipeline" id="btn-pipeline" disabled>⬡ Pipeline</button>
+          <button class="btn-action btn-cancel" id="btn-cancel" disabled style="display:none">Cancel</button>
+        </div>
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-header">
+            <span class="progress-label" id="progress-label">Progress</span>
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-detail" id="progress-detail"></div>
+        </div>
+        <div class="panel log-panel">
+          <div class="log-head">
+            <span class="log-title">Output</span>
+            <button class="btn-clear" id="btn-clear">clear</button>
+          </div>
+          <div class="log-box" id="log-box">
+            <p class="sys">&gt; awaiting job…</p>
+          </div>
+        </div>
+        <div class="panel forecast-panel" id="forecast-panel">
+          <div class="panel-head"><span class="panel-label">Forecast</span></div>
+          <div class="panel-body">
+            <img id="forecast-img" class="forecast-img" alt="forecast"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCHEDULES VIEW ══ -->
+      <div class="view" id="view-schedules">
+        <div class="add-section">
+          <div class="add-section-head"><span class="add-section-title">Add Schedule</span></div>
+          <div class="add-form">
+            <div class="sched-field">
+              <span class="sched-field-label">Model</span>
+              <select class="sched-select" id="sched-model-sel" style="min-width:140px">
+                <option value="">— model —</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Dataset</span>
+              <select class="sched-select" id="sched-dataset-sel" style="min-width:140px">
+                <option value="">— dataset —</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Hour</span>
+              <select class="sched-select" id="sched-hour" style="min-width:70px">
+                <option value="">hr</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Minute</span>
+              <select class="sched-select" id="sched-minute" style="min-width:70px">
+                <option value="">min</option>
+                <option value="0">:00</option><option value="1">:01</option><option value="2">:02</option>
+                <option value="3">:03</option><option value="4">:04</option><option value="5">:05</option>
+                <option value="6">:06</option><option value="7">:07</option><option value="8">:08</option>
+                <option value="9">:09</option><option value="10">:10</option><option value="11">:11</option>
+                <option value="12">:12</option><option value="13">:13</option><option value="14">:14</option>
+                <option value="15">:15</option><option value="16">:16</option><option value="17">:17</option>
+                <option value="18">:18</option><option value="19">:19</option><option value="20">:20</option>
+                <option value="21">:21</option><option value="22">:22</option><option value="23">:23</option>
+                <option value="24">:24</option><option value="25">:25</option><option value="26">:26</option>
+                <option value="27">:27</option><option value="28">:28</option><option value="29">:29</option>
+                <option value="30">:30</option><option value="31">:31</option><option value="32">:32</option>
+                <option value="33">:33</option><option value="34">:34</option><option value="35">:35</option>
+                <option value="36">:36</option><option value="37">:37</option><option value="38">:38</option>
+                <option value="39">:39</option><option value="40">:40</option><option value="41">:41</option>
+                <option value="42">:42</option><option value="43">:43</option><option value="44">:44</option>
+                <option value="45">:45</option><option value="46">:46</option><option value="47">:47</option>
+                <option value="48">:48</option><option value="49">:49</option><option value="50">:50</option>
+                <option value="51">:51</option><option value="52">:52</option><option value="53">:53</option>
+                <option value="54">:54</option><option value="55">:55</option><option value="56">:56</option>
+                <option value="57">:57</option><option value="58">:58</option><option value="59">:59</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">AM/PM</span>
+              <select class="sched-select" id="sched-ampm" style="min-width:70px">
+                <option value="am">AM</option>
+                <option value="pm">PM</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Days</span>
+              <select class="sched-select" id="sched-days" style="min-width:120px">
+                <option value="*">Every day</option>
+                <option value="1-5">Weekdays</option>
+                <option value="6,0">Weekends</option>
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5">Friday</option>
+              </select>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Train args</span>
+              <input class="sched-input" id="sched-train-args" placeholder="--max_epochs 5" style="width:150px"/>
+            </div>
+            <div class="sched-field">
+              <span class="sched-field-label">Run args</span>
+              <input class="sched-input" id="sched-run-args" placeholder="--num_samples 20" style="width:150px"/>
+            </div>
+            <button class="btn-add" onclick="addSchedule()" style="align-self:flex-end">+ Add</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn-refresh-sm" onclick="loadSchedules()" style="align-self:flex-end">↻ Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table class="sched-table">
+            <thead><tr>
+              <th>#</th><th>Model</th><th>Dataset</th><th>Schedule</th>
+              <th>Last Run</th><th>Last Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="sched-tbody">
+              <tr><td colspan="7"><div class="empty-state">Loading…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="list-meta"><span id="sched-count">—</span></div>
+      </div>
+
+    </div><!-- main-body -->
+    <div class="main-footer">
+      <span class="footer-left" id="footer-job">no job running</span>
+      <div class="footer-right">
+        <span id="footer-poll">REST polling</span>
+        <span>port 5557</span>
+      </div>
     </div>
-    <div class="panel log-panel">
-      <div class="log-head">
-        <span class="log-title">Output</span>
-        <button class="btn-clear" id="btn-clear">clear</button>
-      </div>
-      <div class="log-box" id="log-box">
-        <p class="sys">&gt; awaiting job…</p>
-      </div>
-    </div>
-    <div class="panel forecast-panel" id="forecast-panel">
-      <div class="panel-head">
-        <span class="panel-label">Forecast</span>
-      </div>
-      <div class="panel-body">
-        <img id="forecast-img" class="forecast-img" alt="forecast"/>
-      </div>
-    </div>
-  </div>
-</div><!-- shell -->
+  </div><!-- main -->
+</div><!-- app -->
 
 <div class="toast" id="toast">
   <span class="toast-icon" id="toast-icon">✓</span>
   <div class="toast-body">
     <div class="toast-title" id="toast-title"></div>
-    <div class="toast-msg"   id="toast-msg"></div>
+    <div class="toast-msg" id="toast-msg"></div>
   </div>
 </div>
 
-<!-- ══ MODEL INFO MODAL ══ -->
+<!-- MODEL INFO MODAL -->
 <div class="info-modal-overlay" id="model-modal-overlay">
   <div class="info-modal" id="model-modal">
     <div class="im-header">
@@ -484,7 +778,7 @@
   </div>
 </div>
 
-<!-- ══ DATASET INFO MODAL ══ -->
+<!-- DATASET INFO MODAL -->
 <div class="info-modal-overlay" id="dataset-modal-overlay">
   <div class="info-modal" id="dataset-modal">
     <div class="im-header">
@@ -495,81 +789,8 @@
   </div>
 </div>
 
-<footer>
-  <div class="footer-left"  id="footer-job">no job running</div>
-  <div class="footer-right">
-    <span id="footer-poll">REST polling</span>
-    <span>port 5557</span>
-  </div>
-</footer>
-
 <script>
 const BACKEND = "http://localhost:5557";
-
-// ── curated knowledge: model details ──────────────────────────────────────────
-const MODEL_DETAILS = {
-  'lag-llama': {
-    full_name: 'Lag-Llama',
-    family: 'Time-series foundation model',
-    architecture: 'Decoder-only Transformer (LLaMA-style)',
-    parameters: '~2.4M',
-    released: 'Feb 2024',
-    authors: 'Morgan Stanley · Mila · ServiceNow · UdeM',
-    context_length: 'Up to 1024 (configurable)',
-    forecast: 'Probabilistic — Student-t output head (quantiles)',
-    speed: 'Fast — runs comfortably on CPU; sub-second per series typical',
-    strengths: 'Open-source, lightweight, strong zero-shot probabilistic forecasts on small/medium series',
-    weaknesses: 'Univariate only; less accurate than larger foundation models on long horizons',
-    license: 'Apache 2.0',
-    paper: 'arXiv:2310.08278',
-    description: 'A small open-source time-series foundation model. Uses the values themselves and their lagged copies as covariates fed into a LLaMA-style decoder, producing probabilistic forecasts. Designed to be runnable on commodity hardware while still delivering competitive zero-shot accuracy.'
-  },
-  'chronos-2': {
-    full_name: 'Chronos-2',
-    family: 'Time-series foundation model',
-    architecture: 'Encoder-decoder Transformer (T5-style) with value tokenization',
-    parameters: '8M (tiny) → 710M (large), pick by checkpoint',
-    released: '2025 (successor to Chronos, 2024)',
-    authors: 'Amazon Science',
-    context_length: '~512 tokens (≈ 512 timesteps)',
-    forecast: 'Probabilistic — quantile predictions sampled from the LM',
-    speed: 'tiny / small: real-time on CPU · base / large: GPU recommended',
-    strengths: 'State-of-the-art zero-shot accuracy on many benchmarks; multiple sizes; well-calibrated quantiles; improved long-horizon vs Chronos-1',
-    weaknesses: 'Larger sizes need a GPU; value tokenization adds quantization noise on highly continuous signals; fixed context window',
-    license: 'Apache 2.0',
-    paper: 'arXiv:2403.07815 (Chronos) · Chronos-2 technical report',
-    description: 'Treats raw time-series values as a vocabulary by quantizing them, then trains a sequence-to-sequence language model to forecast the next tokens. Chronos-2 improves long-horizon accuracy, calibration, and inference efficiency over the original Chronos release.'
-  }
-};
-
-function lookupModel(name){
-  if(!name) return null;
-  const k = name.toLowerCase().trim().replace(/\s+/g,'-');
-  if(MODEL_DETAILS[k]) return MODEL_DETAILS[k];
-  for(const key of Object.keys(MODEL_DETAILS)){
-    if(k.includes(key) || key.includes(k)) return MODEL_DETAILS[key];
-  }
-  return null;
-}
-
-// ── curated knowledge: dataset details ────────────────────────────────────────
-const DATASET_DETAILS = {
-  'm3_monthly': {description:'Monthly subset of the M3 forecasting competition (Makridakis & Hibon, 2000). 1,428 monthly series spanning six domains: micro, macro, industry, finance, demographic and other. A long-standing classical-statistics benchmark.', source:'M3 Competition', frequency:'Monthly', series_count:'1,428', series_length:'48–126 months', horizon:'18', domain:'Mixed (6 categories)'},
-  'nn5_daily_without_missing': {description:'Daily cash-withdrawal counts at 111 ATMs in England over roughly two years (March 1996 – March 1998), released for the NN5 forecasting competition (2008). The `without_missing` variant has the original missing values imputed (median of the same weekday).', source:'NN5 Competition (2008)', frequency:'Daily', series_count:'111', series_length:'735 days (~2 years)', horizon:'56 (8 weeks)', domain:'Finance / Retail banking'},
-  'tourism_monthly': {description:'Monthly subset of the Kaggle Tourism Forecasting Competition (Athanasopoulos, Hyndman, Song & Wu, 2011). 366 monthly series of tourism-related demand, predominantly from Australia.', source:'Athanasopoulos et al. 2011 / Kaggle Tourism Comp.', frequency:'Monthly', series_count:'366', series_length:'91–333 months', horizon:'24', domain:'Tourism'},
-  'australian_electricity_demand': {description:'Half-hourly electricity demand for the five Australian states — Victoria, New South Wales, Queensland, Tasmania and South Australia — sourced from the Australian Energy Market Operator (AEMO). Packaged in the Monash Time Series Forecasting Repository (extracted from the R `tsibbledata` package).', source:'AEMO via Monash Forecasting Archive', frequency:'Half-hourly (30 min)', series_count:'5 (one per state)', series_length:'~230,700 obs per series', horizon:'60 (Monash benchmark)', domain:'Energy'},
-  'hospital': {description:'767 monthly time series of patient counts related to medical products, covering January 2000 to December 2006. Originally from the R `expsmooth` package (Hyndman et al., 2008) and re-packaged in the Monash Forecasting Archive.', source:'expsmooth (R) via Monash Forecasting Archive', frequency:'Monthly', series_count:'767', series_length:'84 months', horizon:'12', domain:'Healthcare'},
-};
-
-function lookupDataset(name){
-  if(!name) return null;
-  const k = name.toLowerCase().trim();
-  if(DATASET_DETAILS[k]) return DATASET_DETAILS[k];
-  for(const key of Object.keys(DATASET_DETAILS)){
-    if(k.includes(key) || key.includes(k)) return DATASET_DETAILS[key];
-  }
-  return null;
-}
 
 // ── state ─────────────────────────────────────────────────────────────────────
 let viewingJobId      = null;
@@ -581,116 +802,37 @@ let listRefreshHandle = null;
 let logOffset         = 0;
 let modelsCache       = [];
 let datasetsCache     = [];
+let sidebarCollapsed  = localStorage.getItem('sidebarCollapsed') === 'true';
+
+// ── sidebar ───────────────────────────────────────────────────────────────────
+function toggleSidebar(){
+  sidebarCollapsed = !sidebarCollapsed;
+  localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+  document.getElementById('btn-collapse').textContent = sidebarCollapsed ? '⇆' : '⇆';
+}
+// Apply saved state on load
+if(sidebarCollapsed) document.getElementById('sidebar').classList.add('collapsed');
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]) }
 function fmtMs(ms){ if(!ms||ms<=0)return"—"; const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60); if(h>0)return`${h}h ${m%60}m`; if(m>0)return`${m}m ${s%60}s`; return`${s}s` }
 function fmtDate(ts){ if(!ts)return"—"; const d=new Date(ts); return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) }
 function lineClass(l){ if(l.startsWith("[DONE]"))return"done"; if(l.startsWith("[ERROR]"))return"fail"; if(l.startsWith("[CANCEL"))return"sys"; if(l.startsWith("[launcher]"))return"sys"; if(l.includes("DeprecationWarning")||l.includes("pkg_resources")||l.startsWith("WARNING"))return"sys"; return"out" }
+function fileIcon(name){ if(name.endsWith('.py'))return'🐍'; if(name.endsWith('.csv')||name.endsWith('.tsv'))return'📊'; if(name.endsWith('.json'))return'📋'; if(name.endsWith('.pt')||name.endsWith('.pth')||name.endsWith('.ckpt')||name.endsWith('.safetensors'))return'🧠'; if(name.endsWith('.txt')||name.endsWith('.md'))return'📄'; if(name.endsWith('.yaml')||name.endsWith('.yml'))return'⚙️'; return'📁'; }
 
-// ── custom select component ───────────────────────────────────────────────────
-function makeCustomSelect(rootId, opts={}){
-  const root    = document.getElementById(rootId);
-  const trigger = root.querySelector('.cs-trigger');
-  const labelEl = trigger.querySelector('.cs-label');
-  const panel   = root.querySelector('.cs-panel');
-  let _value = "";
-  let _items = [];
-  let _placeholder = opts.placeholder || "— select —";
-  let _emptyText   = opts.emptyText   || "No options";
-  let _disabled = false;
-  const onChange = [];
-  const onInfo   = [];
-
-  function close(){ root.classList.remove('open') }
-  function open(){
-    if(_disabled) return;
-    document.querySelectorAll('.custom-select.open').forEach(el=>{ if(el!==root) el.classList.remove('open') });
-    root.classList.add('open');
-  }
-  function toggle(){ root.classList.contains('open') ? close() : open() }
-
-  trigger.addEventListener('click', e=>{ e.stopPropagation(); toggle() });
-  document.addEventListener('click', e=>{
-    if(e.target.closest('.info-modal-overlay')) return;
-    if(!root.contains(e.target)) close();
-  });
-
-  function updateLabel(){
-    const found = _items.find(i=>String(i.value)===String(_value));
-    if(found){
-      labelEl.textContent = found.label;
-      labelEl.classList.remove('placeholder');
-    } else {
-      labelEl.textContent = _placeholder;
-      labelEl.classList.add('placeholder');
-    }
-  }
-
-  function render(){
-    if(!_items.length){
-      panel.innerHTML = `<div class="cs-empty">${esc(_emptyText)}</div>`;
-      return;
-    }
-    panel.innerHTML = _items.map(it=>`
-      <div class="cs-option${String(it.value)===String(_value)?' selected':''}" data-value="${esc(it.value)}">
-        <span class="cs-option-label">${esc(it.label)}</span>
-        <button type="button" class="cs-info" data-value="${esc(it.value)}" title="More info">ⓘ</button>
-      </div>
-    `).join('');
-    panel.querySelectorAll('.cs-option').forEach(opt=>{
-      const v = opt.dataset.value;
-      opt.addEventListener('click', e=>{
-        if(e.target.closest('.cs-info')) return;
-        api.setValue(v, true);
-        close();
-      });
-      opt.querySelector('.cs-info').addEventListener('click', e=>{
-        e.stopPropagation();
-        onInfo.forEach(cb=>cb(v));
-      });
-    });
-  }
-
-  const api = {
-    get value(){ return _value },
-    setValue(v, fire=false){
-      _value = v==null ? "" : String(v);
-      updateLabel(); render();
-      if(fire) onChange.forEach(cb=>cb(_value));
-    },
-    setItems(items, placeholder, emptyText){
-      _items = Array.isArray(items) ? items : [];
-      if(placeholder !== undefined) _placeholder = placeholder;
-      if(emptyText   !== undefined) _emptyText   = emptyText;
-      if(!_items.find(i=>String(i.value)===String(_value))) _value = "";
-      updateLabel(); render();
-    },
-    setPlaceholder(p){ _placeholder = p; updateLabel() },
-    setDisabled(d){
-      _disabled = !!d;
-      root.classList.toggle('disabled', _disabled);
-      trigger.disabled = _disabled;
-      if(_disabled) close();
-    },
-    setValid(v){ root.classList.toggle('valid', !!v) },
-    setLabelText(text){ labelEl.textContent = text; labelEl.classList.remove('placeholder') },
-    onChange(cb){ onChange.push(cb) },
-    onInfo(cb){ onInfo.push(cb) },
-  };
-  return api;
+function cronToHuman(cron){
+  if(!cron) return "—";
+  const parts = cron.split(" ");
+  if(parts.length !== 5) return cron;
+  const [minute, hour, , , days] = parts;
+  const h24 = parseInt(hour), m = parseInt(minute);
+  const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
+  const ampm = h24 < 12 ? "AM" : "PM";
+  const mStr = String(m).padStart(2, "0");
+  const dayMap = {"*":"daily","1-5":"weekdays","6,0":"weekends","1":"Mon","2":"Tue","3":"Wed","4":"Thu","5":"Fri"};
+  return `${h12}:${mStr} ${ampm} ${dayMap[days]||days}`;
 }
-
-const modelSel   = makeCustomSelect('model-select-wrap',   {placeholder:'— select model —',       emptyText:'No models added yet'});
-const datasetSel = makeCustomSelect('dataset-select-wrap', {placeholder:'— select model first —', emptyText:'No datasets added yet'});
-
-modelSel.onChange(onModelSelected);
-modelSel.onInfo(triggerModelModal);
-
-datasetSel.onChange(v=>{
-  selectedDatasetId = parseInt(v) || null;
-});
-datasetSel.onInfo(triggerDatasetModal);
 
 // ── clock ─────────────────────────────────────────────────────────────────────
 setInterval(()=>{ document.getElementById("clock").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) },1000);
@@ -710,22 +852,59 @@ function setGlobalStatus(n){
 
 // ── log box ───────────────────────────────────────────────────────────────────
 const logBox=document.getElementById("log-box");
-function appendLines(text){
-  const ph=logBox.querySelector(".sys"); if(ph&&ph.textContent.includes("awaiting"))ph.remove();
-  text.split("\n").forEach(line=>{ if(!line.trim())return; const p=document.createElement("p"); p.className=lineClass(line); p.textContent=line; logBox.appendChild(p) });
-  const all=logBox.querySelectorAll("p"); if(all.length>500)[...all].slice(0,all.length-500).forEach(l=>l.remove());
-  logBox.scrollTop=logBox.scrollHeight;
-}
+function appendLines(text){ const ph=logBox.querySelector(".sys"); if(ph&&ph.textContent.includes("awaiting"))ph.remove(); text.split("\n").forEach(line=>{ if(!line.trim())return; const p=document.createElement("p"); p.className=lineClass(line); p.textContent=line; logBox.appendChild(p) }); const all=logBox.querySelectorAll("p"); if(all.length>500)[...all].slice(0,all.length-500).forEach(l=>l.remove()); logBox.scrollTop=logBox.scrollHeight }
 function renderFullLog(text){ logBox.innerHTML=""; if(!text){logBox.innerHTML='<p class="sys">&gt; no log</p>';return} text.split("\n").forEach(line=>{ if(!line.trim())return; const p=document.createElement("p"); p.className=lineClass(line); p.textContent=line; logBox.appendChild(p) }); logBox.scrollTop=logBox.scrollHeight }
 document.getElementById("btn-clear").addEventListener("click",()=>{ logBox.innerHTML='<p class="sys">&gt; cleared</p>' });
 
+// ── custom select ─────────────────────────────────────────────────────────────
+function makeCustomSelect(rootId, opts={}){
+  const root=document.getElementById(rootId);
+  const trigger=root.querySelector('.cs-trigger');
+  const labelEl=trigger.querySelector('.cs-label');
+  const panel=root.querySelector('.cs-panel');
+  let _value="",_items=[],_placeholder=opts.placeholder||"— select —",_emptyText=opts.emptyText||"No options",_disabled=false;
+  const onChange=[],onInfo=[];
+  function close(){ root.classList.remove('open') }
+  function open(){ if(_disabled)return; document.querySelectorAll('.custom-select.open').forEach(el=>{ if(el!==root)el.classList.remove('open') }); root.classList.add('open') }
+  function toggle(){ root.classList.contains('open')?close():open() }
+  trigger.addEventListener('click',e=>{ e.stopPropagation(); toggle() });
+  document.addEventListener('click',e=>{ if(e.target.closest('.info-modal-overlay'))return; if(!root.contains(e.target))close() });
+  function updateLabel(){ const found=_items.find(i=>String(i.value)===String(_value)); if(found){labelEl.textContent=found.label;labelEl.classList.remove('placeholder')}else{labelEl.textContent=_placeholder;labelEl.classList.add('placeholder')} }
+  function render(){
+    if(!_items.length){panel.innerHTML=`<div class="cs-empty">${esc(_emptyText)}</div>`;return}
+    panel.innerHTML=_items.map(it=>`<div class="cs-option${String(it.value)===String(_value)?' selected':''}" data-value="${esc(it.value)}"><span class="cs-option-label">${esc(it.label)}</span><button type="button" class="cs-info" data-value="${esc(it.value)}" title="More info">ⓘ</button></div>`).join('');
+    panel.querySelectorAll('.cs-option').forEach(opt=>{
+      opt.addEventListener('click',e=>{ if(e.target.closest('.cs-info'))return; api.setValue(opt.dataset.value,true); close() });
+      opt.querySelector('.cs-info').addEventListener('click',e=>{ e.stopPropagation(); onInfo.forEach(cb=>cb(opt.dataset.value)) });
+    });
+  }
+  const api={
+    get value(){ return _value },
+    setValue(v,fire=false){ _value=v==null?"":String(v); updateLabel(); render(); if(fire)onChange.forEach(cb=>cb(_value)) },
+    setItems(items,placeholder,emptyText){ _items=Array.isArray(items)?items:[]; if(placeholder!==undefined)_placeholder=placeholder; if(emptyText!==undefined)_emptyText=emptyText; if(!_items.find(i=>String(i.value)===String(_value)))_value=""; updateLabel(); render() },
+    setDisabled(d){ _disabled=!!d; root.classList.toggle('disabled',_disabled); trigger.disabled=_disabled; if(_disabled)close() },
+    setValid(v){ root.classList.toggle('valid',!!v) },
+    setLabelText(text){ labelEl.textContent=text; labelEl.classList.remove('placeholder') },
+    onChange(cb){ onChange.push(cb) },
+    onInfo(cb){ onInfo.push(cb) },
+  };
+  return api;
+}
+
+const modelSel=makeCustomSelect('model-select-wrap',{placeholder:'— select model —',emptyText:'No models added yet'});
+const datasetSel=makeCustomSelect('dataset-select-wrap',{placeholder:'— select model first —',emptyText:'No datasets added yet'});
+modelSel.onChange(onModelSelected);
+modelSel.onInfo(triggerModelModal);
+datasetSel.onChange(v=>{ selectedDatasetId=parseInt(v)||null });
+datasetSel.onInfo(triggerDatasetModal);
+
 // ── button state ──────────────────────────────────────────────────────────────
 function syncButtons(){
-  const t=document.getElementById("btn-train"),r=document.getElementById("btn-run"),c=document.getElementById("btn-cancel");
-  const isNew=viewingJobId===null, isRunning=viewingJobId!==null&&pollerHandle!==null;
-  if(isNew){ t.style.display=""; r.style.display=""; c.style.display="none"; t.disabled=!modelValid; r.disabled=!modelValid }
-  else if(isRunning){ t.style.display="none"; r.style.display="none"; c.style.display=""; c.disabled=false }
-  else { t.style.display="none"; r.style.display="none"; c.style.display="none" }
+  const t=document.getElementById("btn-train"),r=document.getElementById("btn-run"),c=document.getElementById("btn-cancel"),p=document.getElementById("btn-pipeline");
+  const isNew=viewingJobId===null,isRunning=viewingJobId!==null&&pollerHandle!==null;
+  if(isNew){t.style.display="";r.style.display="";c.style.display="none";t.disabled=!modelValid;r.disabled=!modelValid;p.disabled=!modelValid}
+  else if(isRunning){t.style.display="none";r.style.display="none";c.style.display="";c.disabled=false}
+  else{t.style.display="none";r.style.display="none";c.style.display="none"}
 }
 
 // ── polling ───────────────────────────────────────────────────────────────────
@@ -754,7 +933,7 @@ async function pollJob(){
       statusEl.style.color=jobRes.status==="done"?"var(--success)":jobRes.status==="cancelled"?"var(--text-dim)":"var(--error)";
       document.getElementById("metric-duration").textContent=fmtMs(jobRes.duration_ms);
       document.getElementById("metrics-strip").classList.add("show");
-      if(jobRes.fail_reason&&jobRes.status!=="done"){ document.getElementById("metric-fail").textContent=jobRes.fail_reason; document.getElementById("metric-fail-wrap").style.display="" }
+      if(jobRes.fail_reason&&jobRes.status!=="done"){document.getElementById("metric-fail").textContent=jobRes.fail_reason;document.getElementById("metric-fail-wrap").style.display=""}
       document.getElementById("readonly-banner").classList.add("show");
       if(jobRes.status==="done") tryLoadForecast(id);
       toast(jobRes.status==="done"?"done":jobRes.status==="cancelled"?"warn":"error",
@@ -774,12 +953,7 @@ async function loadJobs(){
     const url=q?`${BACKEND}/api/jobs?search=${encodeURIComponent(q)}`:`${BACKEND}/api/jobs`;
     const {jobs}=await fetch(url).then(r=>r.json());
     const tbody=document.getElementById("jobs-tbody");
-    if(!jobs?.length){
-      tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">No jobs yet. Click "New Job" to start.</div></td></tr>`;
-      document.getElementById("jobs-count").textContent="0 jobs";
-      document.getElementById("running-pill").innerHTML="";
-      setGlobalStatus(0); return;
-    }
+    if(!jobs?.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">No jobs yet. Click "New Job" to start.</div></td></tr>`;document.getElementById("jobs-count").textContent="0 jobs";document.getElementById("running-pill").innerHTML="";setGlobalStatus(0);return}
     const running=jobs.filter(j=>j.status==="running").length;
     setGlobalStatus(running);
     document.getElementById("jobs-count").textContent=`${jobs.length} job${jobs.length!==1?"s":""}`;
@@ -795,34 +969,48 @@ async function loadJobs(){
 }
 document.getElementById("search-input").addEventListener("input",()=>{ clearTimeout(window._st); window._st=setTimeout(loadJobs,300) });
 
-// ── manage view ───────────────────────────────────────────────────────────────
-async function loadManage(){
-  const [models,datasets]=await Promise.all([
-    fetch(`${BACKEND}/api/models`).then(r=>r.json()),
-    fetch(`${BACKEND}/api/datasets`).then(r=>r.json()),
-  ]);
-  modelsCache=models; datasetsCache=datasets;
-  renderModelsList(); renderDatasetsList();
-}
-function renderModelsList(){
-  const el=document.getElementById("models-list");
-  if(!modelsCache.length){el.innerHTML='<div class="empty-state" style="padding:20px;font-size:11px">No models added yet.</div>';return}
-  el.innerHTML=modelsCache.map(m=>`<div class="manage-item">
-    <div style="flex:1;min-width:0"><div class="manage-item-name">${esc(m.name)}</div><div class="manage-item-sub">${esc(m.path)}</div></div>
-    <button class="btn-del" onclick="deleteModel(${m.id})">✕</button>
-  </div>`).join("");
-}
-function renderDatasetsList(){
-  const el=document.getElementById("datasets-list");
-  if(!datasetsCache.length){el.innerHTML='<div class="empty-state" style="padding:20px;font-size:11px">No datasets added yet.</div>';return}
-  el.innerHTML=datasetsCache.map(d=>`<div class="manage-item">
-    <div style="flex:1;min-width:0">
-      <div class="manage-item-name">${esc(d.name)}</div>
-      ${d.path?`<div class="manage-item-sub">${esc(d.path)}</div>`:''}
+// ── models view ───────────────────────────────────────────────────────────────
+async function loadModels(){
+  const models=await fetch(`${BACKEND}/api/models`).then(r=>r.json());
+  modelsCache=models;
+  const grid=document.getElementById("models-grid");
+  if(!models.length){grid.innerHTML='<div class="empty-state">No models added yet.</div>';return}
+  grid.innerHTML=models.map(m=>`
+    <div class="model-card">
+      <div class="model-card-header">
+        <div class="model-card-icon">${m.name.charAt(0).toUpperCase()}</div>
+        <div class="model-card-info">
+          <div class="model-card-name">${esc(m.name)}</div>
+          <div class="model-card-sub">${esc(m.path)}</div>
+        </div>
+        <div class="model-card-actions">
+          <button class="btn-info-sm" onclick="triggerModelModal(${m.id})">ⓘ Info</button>
+          <button class="btn-del-sm" onclick="deleteModel(${m.id})" title="Delete">✕</button>
+        </div>
+      </div>
     </div>
-    <button class="btn-del" onclick="deleteDataset(${d.id})">✕</button>
-  </div>`).join("");
+  `).join("");
+  // Load config chips for each model
+  models.forEach(async m => {
+    try{
+      const d=await fetch(`${BACKEND}/api/validate?modelPath=${encodeURIComponent(m.path)}`).then(r=>r.json());
+      if(d.valid&&d.config){
+        const card=document.querySelector(`.model-card-header [onclick="triggerModelModal(${m.id})"]`)?.closest('.model-card');
+        if(card){
+          const body=document.createElement('div');
+          body.className='model-card-body';
+          const chips=[
+            d.config.model_type?`<div class="meta-chip">type <span>${esc(d.config.model_type)}</span></div>`:'',
+            d.config.train_script?`<div class="meta-chip">train <span>${esc(d.config.train_script)}</span></div>`:'',
+            d.config.run_script?`<div class="meta-chip">run <span>${esc(d.config.run_script)}</span></div>`:'',
+          ].filter(Boolean).join('');
+          if(chips){body.innerHTML=chips;card.appendChild(body)}
+        }
+      }
+    }catch(_){}
+  });
 }
+
 async function addModel(){
   const name=document.getElementById("model-add-name").value.trim();
   const mpath=document.getElementById("model-add-path").value.trim();
@@ -830,13 +1018,38 @@ async function addModel(){
   const r=await fetch(`${BACKEND}/api/models`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,path:mpath})});
   const d=await r.json();
   if(!r.ok){toast("error","Could not add model",d.error);return}
-  document.getElementById("model-add-name").value=""; document.getElementById("model-add-path").value="";
-  toast("done","Model added",name); loadManage(); populateModelDropdown();
+  document.getElementById("model-add-name").value="";document.getElementById("model-add-path").value="";
+  toast("done","Model added",name); loadModels(); populateModelDropdown();
 }
+
 async function deleteModel(id){
   await fetch(`${BACKEND}/api/models/${id}`,{method:"DELETE"});
-  loadManage(); populateModelDropdown();
+  loadModels(); populateModelDropdown();
 }
+
+// ── datasets view ─────────────────────────────────────────────────────────────
+async function loadDatasets(){
+  const datasets=await fetch(`${BACKEND}/api/datasets`).then(r=>r.json());
+  datasetsCache=datasets;
+  const grid=document.getElementById("datasets-grid");
+  if(!datasets.length){grid.innerHTML='<div class="empty-state">No datasets added yet.</div>';return}
+  grid.innerHTML=datasets.map(d=>`
+    <div class="dataset-card">
+      <div class="dataset-card-header">
+        <div class="dataset-card-icon">${d.name.charAt(0).toUpperCase()}</div>
+        <div class="dataset-card-info">
+          <div class="dataset-card-name">${esc(d.name)}</div>
+          <div class="dataset-card-sub">${d.path?esc(d.path):'GluonTS built-in'}</div>
+        </div>
+        <div class="model-card-actions">
+          <button class="btn-info-sm" onclick="triggerDatasetModal(${d.id})">ⓘ Info</button>
+          <button class="btn-del-sm" onclick="deleteDataset(${d.id})" title="Delete">✕</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
 async function addDataset(){
   const name=document.getElementById("dataset-add-name").value.trim();
   const dpath=document.getElementById("dataset-add-path").value.trim();
@@ -844,19 +1057,20 @@ async function addDataset(){
   const r=await fetch(`${BACKEND}/api/datasets`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,path:dpath})});
   const d=await r.json();
   if(!r.ok){toast("error","Could not add dataset",d.error);return}
-  document.getElementById("dataset-add-name").value=""; document.getElementById("dataset-add-path").value="";
-  toast("done","Dataset added",name); loadManage();
-}
-async function deleteDataset(id){
-  await fetch(`${BACKEND}/api/datasets/${id}`,{method:"DELETE"});
-  loadManage();
+  document.getElementById("dataset-add-name").value="";document.getElementById("dataset-add-path").value="";
+  toast("done","Dataset added",name); loadDatasets();
 }
 
-// ── model/dataset dropdowns ───────────────────────────────────────────────────
+async function deleteDataset(id){
+  await fetch(`${BACKEND}/api/datasets/${id}`,{method:"DELETE"});
+  loadDatasets();
+}
+
+// ── model dropdown ────────────────────────────────────────────────────────────
 async function populateModelDropdown(){
   const models=await fetch(`${BACKEND}/api/models`).then(r=>r.json());
   modelsCache=models;
-  modelSel.setItems(models.map(m=>({value:m.id, label:m.name})), "— select model —");
+  modelSel.setItems(models.map(m=>({value:m.id,label:m.name})),"— select model —");
 }
 
 async function onModelSelected(v){
@@ -865,18 +1079,17 @@ async function onModelSelected(v){
   document.getElementById("model-info").classList.remove("show");
   document.getElementById("model-hint").className="path-hint";
   modelSel.setValid(false);
-  datasetSel.setItems([], "— select model first —");
+  datasetSel.setItems([],"— select model first —");
   datasetSel.setDisabled(true);
   syncButtons();
-  if(!id) return;
-
+  if(!id)return;
   const m=modelsCache.find(x=>x.id===id);
   if(m){
     try{
       const d=await fetch(`${BACKEND}/api/validate?modelPath=${encodeURIComponent(m.path)}`).then(r=>r.json());
       const hint=document.getElementById("model-hint");
       if(d.valid){
-        modelValid=true; hint.className="path-hint ok show"; hint.textContent=`Loaded: ${d.config.name}`;
+        modelValid=true;hint.className="path-hint ok show";hint.textContent=`Loaded: ${d.config.name}`;
         document.getElementById("model-name").textContent=d.config.name;
         document.getElementById("info-train").textContent=d.config.train_script||"—";
         document.getElementById("info-run").textContent=d.config.run_script||"—";
@@ -884,251 +1097,176 @@ async function onModelSelected(v){
         document.getElementById("model-info").classList.add("show");
         modelSel.setValid(true);
       }else{
-        hint.className="path-hint err show"; hint.textContent=d.error||"Invalid model"; modelSel.setValid(false);
+        hint.className="path-hint err show";hint.textContent=d.error||"Invalid model";modelSel.setValid(false);
       }
-    }catch{ document.getElementById("model-hint").className="path-hint err show"; document.getElementById("model-hint").textContent="Could not reach backend" }
+    }catch{document.getElementById("model-hint").className="path-hint err show";document.getElementById("model-hint").textContent="Could not reach backend"}
   }
-
-  // load datasets — and FIX: actually populate the cache so the ⓘ button works
   const datasets=await fetch(`${BACKEND}/api/datasets`).then(r=>r.json());
   datasetsCache=datasets;
-  if(datasets.length){
-    datasetSel.setItems(datasets.map(d=>({value:d.id, label:d.name})), "— select dataset —");
-    datasetSel.setDisabled(false);
-  }else{
-    datasetSel.setItems([], "— no datasets added yet —");
-    datasetSel.setDisabled(true);
-  }
+  if(datasets.length){datasetSel.setItems(datasets.map(d=>({value:d.id,label:d.name})),"— select dataset —");datasetSel.setDisabled(false)}
+  else{datasetSel.setItems([],"— no datasets added yet —");datasetSel.setDisabled(true)}
   syncButtons();
 }
 
 // ── info modals ───────────────────────────────────────────────────────────────
-function openInfoModal(which){
-  const overlay=document.getElementById(`${which}-modal-overlay`);
-  const modal=document.getElementById(`${which}-modal`);
-  overlay.classList.add('active');
-  requestAnimationFrame(()=>modal.classList.add('show'));
-}
-function closeInfoModal(which){
-  const overlay=document.getElementById(`${which}-modal-overlay`);
-  const modal=document.getElementById(`${which}-modal`);
-  modal.classList.remove('show');
-  setTimeout(()=>overlay.classList.remove('active'),200);
-}
-document.getElementById('model-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeInfoModal('model') });
-document.getElementById('dataset-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeInfoModal('dataset') });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeInfoModal('model'); closeInfoModal('dataset') } });
+function openInfoModal(which){ const overlay=document.getElementById(`${which}-modal-overlay`),modal=document.getElementById(`${which}-modal`); overlay.classList.add('active'); requestAnimationFrame(()=>modal.classList.add('show')) }
+function closeInfoModal(which){ const overlay=document.getElementById(`${which}-modal-overlay`),modal=document.getElementById(`${which}-modal`); modal.classList.remove('show'); setTimeout(()=>overlay.classList.remove('active'),200) }
+document.getElementById('model-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget)closeInfoModal('model') });
+document.getElementById('dataset-modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget)closeInfoModal('dataset') });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeInfoModal('model');closeInfoModal('dataset')} });
 
-function fileIcon(name){
-  if(name.endsWith('.py'))return'🐍'; if(name.endsWith('.csv')||name.endsWith('.tsv'))return'📊';
-  if(name.endsWith('.json'))return'📋'; if(name.endsWith('.pt')||name.endsWith('.pth')||name.endsWith('.ckpt')||name.endsWith('.safetensors'))return'🧠';
-  if(name.endsWith('.txt')||name.endsWith('.md'))return'📄'; if(name.endsWith('.yaml')||name.endsWith('.yml'))return'⚙️'; return'📁';
-}
-
+// ── model info modal — reads from folder files ─────────────────────────────────
 async function triggerModelModal(id){
-  const m = modelsCache.find(x => String(x.id) === String(id));
-  if(!m) return;
+  const m=modelsCache.find(x=>String(x.id)===String(id));
+  if(!m)return;
+
+  // Load config from backend
   let cfg=null;
-  try{ const d=await fetch(`${BACKEND}/api/validate?modelPath=${encodeURIComponent(m.path)}`).then(r=>r.json()); if(d.valid) cfg=d.config; }catch(_){}
-  const details = lookupModel(m.name) || lookupModel(cfg?.name);
-  const modelType = cfg?.model_type || details?.family || '—';
+  try{ const d=await fetch(`${BACKEND}/api/validate?modelPath=${encodeURIComponent(m.path)}`).then(r=>r.json()); if(d.valid)cfg=d.config; }catch(_){}
 
-  const detailsBlock = details ? `
-    <div class="im-divider"></div>
-    <div class="im-row">
-      <div class="im-label">About</div>
-      <div class="im-value" style="line-height:1.65">${esc(details.description)}</div>
-    </div>
-    <div class="im-divider"></div>
-    <div class="im-section-title">Specifications</div>
-    <div class="im-grid">
-      <div class="im-row"><div class="im-label">Architecture</div><div class="im-value">${esc(details.architecture)}</div></div>
-      <div class="im-row"><div class="im-label">Parameters</div><div class="im-value">${esc(details.parameters)}</div></div>
-      <div class="im-row"><div class="im-label">Released</div><div class="im-value">${esc(details.released)}</div></div>
-      <div class="im-row"><div class="im-label">Authors</div><div class="im-value">${esc(details.authors)}</div></div>
-      <div class="im-row"><div class="im-label">Context length</div><div class="im-value">${esc(details.context_length)}</div></div>
-      <div class="im-row"><div class="im-label">Forecast type</div><div class="im-value">${esc(details.forecast)}</div></div>
-      <div class="im-row"><div class="im-label">License</div><div class="im-value">${esc(details.license)}</div></div>
-      <div class="im-row"><div class="im-label">Paper</div><div class="im-value muted">${esc(details.paper)}</div></div>
-    </div>
-    <div class="im-divider"></div>
-    <div class="im-row"><div class="im-label">Speed</div><div class="im-value success">${esc(details.speed)}</div></div>
-    <div class="im-row"><div class="im-label">Strengths</div><div class="im-value success">${esc(details.strengths)}</div></div>
-    <div class="im-row"><div class="im-label">Weaknesses</div><div class="im-value warn">${esc(details.weaknesses)}</div></div>
-  ` : `
-    <div class="im-row"><div class="im-value muted" style="font-size:11px">No curated description available for this model.</div></div>
-  `;
+  // Load files in model folder
+  let files=[];
+  try{ const r=await fetch(`${BACKEND}/api/dataset-files?path=${encodeURIComponent(m.path)}`).then(r=>r.json()); files=r.files||[]; }catch(_){}
 
-  document.getElementById('model-modal-body').innerHTML = `
+  // Load README if it exists
+  let readme=null;
+  try{
+    const r=await fetch(`${BACKEND}/api/model-readme?modelPath=${encodeURIComponent(m.path)}`);
+    if(r.ok){ const d=await r.json(); readme=d.readme||null; }
+  }catch(_){}
+
+  // Build modal content from actual files
+  const hfCfg=cfg?._hf||{};
+  const modelType=cfg?.model_type||hfCfg.model_type||'—';
+  const archFields=[
+    hfCfg.architectures?['Architecture',hfCfg.architectures[0]]:null,
+    hfCfg.num_hidden_layers?['Layers',hfCfg.num_hidden_layers]:null,
+    hfCfg.hidden_size?['Hidden size',hfCfg.hidden_size]:null,
+    hfCfg.num_attention_heads?['Attention heads',hfCfg.num_attention_heads]:null,
+    hfCfg.vocab_size?['Vocab size',hfCfg.vocab_size]:null,
+    hfCfg.max_position_embeddings?['Max positions',hfCfg.max_position_embeddings]:null,
+    hfCfg.torch_dtype?['Dtype',hfCfg.torch_dtype]:null,
+  ].filter(Boolean);
+
+  document.getElementById('model-modal-body').innerHTML=`
     <div class="im-badge-row">
       <span class="im-badge model-type">${esc(modelType)}</span>
-      ${details ? `<span class="im-badge family">${esc(details.family)}</span>` : ''}
     </div>
     <div class="im-row">
       <div class="im-label">Name</div>
-      <div class="im-value accent">${esc(details?.full_name || cfg?.name || m.name)}</div>
+      <div class="im-value accent">${esc(cfg?.name||m.name)}</div>
     </div>
-    ${detailsBlock}
+    <div class="im-row">
+      <div class="im-label">Folder</div>
+      <div class="im-value muted" style="font-size:10px">${esc(m.path)}</div>
+    </div>
+    ${archFields.length?`
     <div class="im-divider"></div>
-    <div class="im-section-title">Local install</div>
-    <div class="im-row"><div class="im-label">Folder path</div><div class="im-value muted" style="font-size:10px">${esc(m.path)}</div></div>
+    <div class="im-section-title">Architecture (from config.json)</div>
+    <div class="im-grid">
+      ${archFields.map(([k,v])=>`<div class="im-row"><div class="im-label">${esc(k)}</div><div class="im-value">${esc(v)}</div></div>`).join('')}
+    </div>`:''}
+    <div class="im-divider"></div>
+    <div class="im-section-title">Scripts</div>
     <div class="im-grid">
       <div class="im-row"><div class="im-label">Train script</div><div class="im-value">${esc(cfg?.train_script||'—')}</div></div>
       <div class="im-row"><div class="im-label">Run script</div><div class="im-value">${esc(cfg?.run_script||'—')}</div></div>
+      <div class="im-row"><div class="im-label">Dataset param</div><div class="im-value">${esc(cfg?.dataset_param||'—')}</div></div>
+      <div class="im-row"><div class="im-label">Model type</div><div class="im-value">${esc(modelType)}</div></div>
     </div>
-    <div class="im-row"><div class="im-label">Dataset param</div><div class="im-value">${esc(cfg?.dataset_param||'—')}</div></div>
+    ${readme?`
+    <div class="im-divider"></div>
+    <div class="im-section-title">README</div>
+    <div class="im-readme">${esc(readme.slice(0,2000))}${readme.length>2000?'\n\n[truncated…]':''}</div>`:''}
+    <div class="im-divider"></div>
+    <div class="im-section-title">Files in folder</div>
+    <div class="im-filelist">
+      ${files.length?files.map(f=>`<div class="im-file"><span class="im-file-icon">${fileIcon(f)}</span>${esc(f)}</div>`).join(''):'<div class="im-empty">No files found</div>'}
+    </div>
   `;
   openInfoModal('model');
 }
 
+// ── dataset info modal ────────────────────────────────────────────────────────
 async function triggerDatasetModal(id){
-  const ds = datasetsCache.find(x => String(x.id) === String(id));
-  if(!ds) return;
-  const isGluon = !ds.path;
-  const details = lookupDataset(ds.name);
-  let files = [];
-  if(ds.path){
-    try{ const r=await fetch(`${BACKEND}/api/dataset-files?path=${encodeURIComponent(ds.path)}`).then(r=>r.json()); files=r.files||[]; }catch(_){}
-  }
-  let preview = null;
-  let previewError = null;
+  const ds=datasetsCache.find(x=>String(x.id)===String(id));
+  if(!ds)return;
+  const isGluon=!ds.path;
+  let files=[];
+  if(ds.path){ try{ const r=await fetch(`${BACKEND}/api/dataset-files?path=${encodeURIComponent(ds.path)}`).then(r=>r.json()); files=r.files||[]; }catch(_){} }
+  let preview=null,previewError=null;
   try{
-    const r = await fetch(`${BACKEND}/api/dataset-preview?datasetId=${id}&limit=20`);
-    if(r.ok){
-      preview = await r.json();
-    } else if(r.status === 404){
-      previewError = "endpoint /api/dataset-preview not found — restart the backend with the updated server.js";
-    } else {
-      let body = null;
-      try{ body = await r.json(); }catch(_){}
-      previewError = body?.error
-        ? `backend error (${r.status}): ${body.error}`
-        : `backend returned HTTP ${r.status}`;
-    }
-  }catch(e){
-    previewError = `could not reach backend: ${e.message}`;
-  }
+    const r=await fetch(`${BACKEND}/api/dataset-preview?datasetId=${id}&limit=20`);
+    if(r.ok) preview=await r.json();
+    else{ let body=null; try{body=await r.json()}catch(_){} previewError=body?.error||`HTTP ${r.status}`; }
+  }catch(e){ previewError=e.message }
 
-  const detailsBlock = details ? `
-    <div class="im-divider"></div>
-    <div class="im-row">
-      <div class="im-label">About</div>
-      <div class="im-value" style="line-height:1.65">${esc(details.description)}</div>
-    </div>
-    <div class="im-divider"></div>
-    <div class="im-section-title">Specifications</div>
-    <div class="im-grid">
-      <div class="im-row"><div class="im-label">Source</div><div class="im-value">${esc(details.source)}</div></div>
-      <div class="im-row"><div class="im-label">Domain</div><div class="im-value">${esc(details.domain)}</div></div>
-      <div class="im-row"><div class="im-label">Frequency</div><div class="im-value">${esc(details.frequency)}</div></div>
-      <div class="im-row"><div class="im-label">Series count</div><div class="im-value">${esc(details.series_count)}</div></div>
-      <div class="im-row"><div class="im-label">Series length</div><div class="im-value">${esc(details.series_length)}</div></div>
-      <div class="im-row"><div class="im-label">Default horizon</div><div class="im-value">${esc(details.horizon)}</div></div>
-    </div>
-  ` : `
-    <div class="im-row"><div class="im-value muted" style="font-size:11px">No curated description available for this dataset.</div></div>
-  `;
-
-  const filesBlock = isGluon
-    ? `<div class="im-divider"></div>
-       <div class="im-row"><div class="im-value muted" style="font-size:10px;line-height:1.6">Loaded automatically by GluonTS at runtime. No local files required.</div></div>`
-    : `<div class="im-divider"></div>
-       <div class="im-section-title">Files in path</div>
-       <div class="im-filelist">${
-         files.length
-           ? files.map(f=>`<div class="im-file"><span class="im-file-icon">${fileIcon(f)}</span>${esc(f)}</div>`).join('')
-           : '<div class="im-empty">No files found or path not accessible</div>'
-       }</div>`;
-
-  let previewBlock = '';
-  if(preview && Array.isArray(preview.rows) && preview.rows.length){
-    const cols = preview.columns && preview.columns.length
-      ? preview.columns
-      : Object.keys(preview.rows[0]);
-    const totalNote = preview.total && preview.total > preview.rows.length
-      ? `Showing ${preview.rows.length} of ${preview.total}`
-      : `Showing ${preview.rows.length}`;
-    previewBlock = `
+  let previewBlock='';
+  if(preview&&Array.isArray(preview.rows)&&preview.rows.length){
+    const cols=preview.columns&&preview.columns.length?preview.columns:Object.keys(preview.rows[0]);
+    const totalNote=preview.total&&preview.total>preview.rows.length?`Showing ${preview.rows.length} of ${preview.total}`:`Showing ${preview.rows.length}`;
+    previewBlock=`
       <div class="im-divider"></div>
       <div class="im-section-title">Data preview</div>
       <div class="im-table-wrap">
         <table class="im-table">
           <thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
-          <tbody>${preview.rows.map(row=>`
-            <tr>${cols.map(c=>{
-              const v = row[c];
-              const display = (v===null||v===undefined) ? '—'
-                : (typeof v === 'object' ? JSON.stringify(v) : String(v));
-              const truncated = display.length > 80 ? display.slice(0,80)+'…' : display;
-              return `<td title="${esc(display)}">${esc(truncated)}</td>`;
-            }).join('')}</tr>
-          `).join('')}</tbody>
+          <tbody>${preview.rows.map(row=>`<tr>${cols.map(c=>{ const v=row[c]; const display=(v===null||v===undefined)?'—':(typeof v==='object'?JSON.stringify(v):String(v)); const truncated=display.length>80?display.slice(0,80)+'…':display; return `<td title="${esc(display)}">${esc(truncated)}</td>`; }).join('')}</tr>`).join('')}</tbody>
         </table>
       </div>
-      <div class="im-table-meta">${esc(totalNote)}${preview.note ? ' · '+esc(preview.note) : ''}</div>
-    `;
-  } else {
-    const reason = previewError
-      || (preview && preview.error)
-      || "no rows returned";
-    previewBlock = `
-      <div class="im-divider"></div>
-      <div class="im-section-title">Data preview</div>
-      <div class="im-empty" style="padding:14px 0">No preview available — ${esc(reason)}</div>
-    `;
+      <div class="im-table-meta">${esc(totalNote)}${preview.note?' · '+esc(preview.note):''}</div>`;
+  }else{
+    previewBlock=`<div class="im-divider"></div><div class="im-section-title">Data preview</div><div class="im-empty" style="padding:14px 0">No preview available — ${esc(previewError||'no rows returned')}</div>`;
   }
 
-  document.getElementById('dataset-modal-body').innerHTML = `
+  document.getElementById('dataset-modal-body').innerHTML=`
     <div class="im-badge-row">
       <span class="im-badge ${isGluon?'gluon':'custom'}">${isGluon?'GluonTS built-in':'Custom path'}</span>
     </div>
-    <div class="im-row">
-      <div class="im-label">Name</div>
-      <div class="im-value accent">${esc(ds.name)}</div>
-    </div>
-    ${ds.path ? `<div class="im-row"><div class="im-label">Path</div><div class="im-value muted" style="font-size:10px">${esc(ds.path)}</div></div>` : ''}
-    ${detailsBlock}
+    <div class="im-row"><div class="im-label">Name</div><div class="im-value accent">${esc(ds.name)}</div></div>
+    ${ds.path?`<div class="im-row"><div class="im-label">Path</div><div class="im-value muted" style="font-size:10px">${esc(ds.path)}</div></div>`:''}
     ${previewBlock}
-    ${filesBlock}
+    <div class="im-divider"></div>
+    ${isGluon?`<div class="im-row"><div class="im-value muted" style="font-size:10px;line-height:1.6">Loaded automatically by GluonTS at runtime. No local files required.</div></div>`
+    :`<div class="im-section-title">Files</div><div class="im-filelist">${files.length?files.map(f=>`<div class="im-file"><span class="im-file-icon">${fileIcon(f)}</span>${esc(f)}</div>`).join(''):'<div class="im-empty">No files found</div>'}</div>`}
   `;
   openInfoModal('dataset');
 }
 
-// ── forecast image loader ────────────────────────────────────────────────────
-function tryLoadForecast(jobId){
-  const panel = document.getElementById('forecast-panel');
-  const img   = document.getElementById('forecast-img');
-  if(!jobId){ panel.classList.remove('show'); return }
-  const url = `${BACKEND}/api/jobs/${jobId}/forecast.png?t=${Date.now()}`;
-  img.onload  = () => panel.classList.add('show');
-  img.onerror = () => { panel.classList.remove('show'); img.removeAttribute('src') };
-  img.src = url;
-}
-function clearForecast(){
-  const panel = document.getElementById('forecast-panel');
-  const img   = document.getElementById('forecast-img');
-  panel.classList.remove('show');
-  img.removeAttribute('src');
-}
+// ── forecast ──────────────────────────────────────────────────────────────────
+function tryLoadForecast(jobId){ const panel=document.getElementById('forecast-panel'),img=document.getElementById('forecast-img'); if(!jobId){panel.classList.remove('show');return} const url=`${BACKEND}/api/jobs/${jobId}/forecast.png?t=${Date.now()}`; img.onload=()=>panel.classList.add('show'); img.onerror=()=>{panel.classList.remove('show');img.removeAttribute('src')}; img.src=url }
+function clearForecast(){ const panel=document.getElementById('forecast-panel'),img=document.getElementById('forecast-img'); panel.classList.remove('show'); img.removeAttribute('src') }
 
 // ── view switching ────────────────────────────────────────────────────────────
+const VIEW_TITLES={list:'Job History',job:'Launcher',models:'Models',datasets:'Datasets',schedules:'Schedules'};
+const NAV_IDS={list:'nav-list',job:'nav-newjob',models:'nav-models',datasets:'nav-datasets',schedules:'nav-schedules'};
+
 function showView(which,jobId=null){
-  ["list","job","manage"].forEach(v=>{
-    document.getElementById(`view-${v}`).classList.toggle("active",v===which);
-    const t=document.getElementById(`tab-${v}`); if(t) t.classList.toggle("active",v===which);
+  ['list','job','models','datasets','schedules'].forEach(v=>{
+    document.getElementById(`view-${v}`).classList.toggle('active',v===which);
   });
+  Object.values(NAV_IDS).forEach(id=>{ const el=document.getElementById(id); if(el)el.classList.remove('active') });
+  const activeNav=document.getElementById(NAV_IDS[which]);
+  if(activeNav) activeNav.classList.add('active');
+  document.getElementById('main-title').textContent=VIEW_TITLES[which]||(jobId!==null?`Job #${jobId}`:'New Job');
   clearInterval(listRefreshHandle); listRefreshHandle=null;
-  if(which==="list"){
+
+  if(which==='list'){
     stopPoller(); viewingJobId=null; loadJobs();
     history.pushState({},"",location.pathname);
     listRefreshHandle=setInterval(loadJobs,3000);
-  } else if(which==="manage"){
-    loadManage(); history.pushState({},"","?manage");
-  } else {
+  } else if(which==='models'){
+    loadModels(); history.pushState({},"","?models");
+  } else if(which==='datasets'){
+    loadDatasets(); history.pushState({},"","?datasets");
+  } else if(which==='schedules'){
+    loadSchedules(); populateScheduleDropdowns(); history.pushState({},"","?schedules");
+  } else if(which==='job'){
     if(jobId!==null){
       viewingJobId=jobId;
-      document.getElementById("job-view-title").textContent=`Job #${jobId}`;
-      document.getElementById("job-view-id").textContent=`#${jobId}`;
+      document.getElementById('main-title').textContent=`Job #${jobId}`;
+      document.getElementById('job-view-title').textContent=`Job #${jobId}`;
+      document.getElementById('job-view-id').textContent=`#${jobId}`;
       setReadonly(true); loadJobDetail(jobId);
       history.pushState({},"",`?job=${jobId}`);
     } else {
@@ -1137,32 +1275,25 @@ function showView(which,jobId=null){
   }
 }
 
-function setReadonly(on){
-  modelSel.setDisabled(on);
-  datasetSel.setDisabled(on);
-  document.getElementById("extra-args")[on?"setAttribute":"removeAttribute"]("readonly","");
-}
+function setReadonly(on){ modelSel.setDisabled(on); datasetSel.setDisabled(on); document.getElementById("extra-args")[on?"setAttribute":"removeAttribute"]("readonly","") }
 
 function resetNewJob(){
   stopPoller(); viewingJobId=null; modelValid=false; selectedModelId=null; selectedDatasetId=null;
-  document.getElementById("job-view-title").textContent="New Job";
-  document.getElementById("job-view-id").textContent="";
-  document.getElementById("readonly-banner").classList.remove("show");
-  modelSel.setValid(false);
-  modelSel.setValue("");
-  modelSel.setDisabled(false);
-  datasetSel.setItems([], "— select model first —");
-  datasetSel.setDisabled(true);
-  document.getElementById("extra-args").value="";
-  document.getElementById("model-name").textContent="—";
-  document.getElementById("model-hint").className="path-hint";
-  document.getElementById("model-info").classList.remove("show");
-  document.getElementById("metrics-strip").classList.remove("show");
-  document.getElementById("progress-wrap").classList.remove("visible");
-  document.getElementById("metric-fail-wrap").style.display="none";
+  document.getElementById('job-view-title').textContent='New Job';
+  document.getElementById('job-view-id').textContent='';
+  document.getElementById('main-title').textContent='New Job';
+  document.getElementById('readonly-banner').classList.remove('show');
+  modelSel.setValid(false); modelSel.setValue(''); modelSel.setDisabled(false);
+  datasetSel.setItems([],'— select model first —'); datasetSel.setDisabled(true);
+  document.getElementById('extra-args').value='';
+  document.getElementById('model-name').textContent='—';
+  document.getElementById('model-hint').className='path-hint';
+  document.getElementById('model-info').classList.remove('show');
+  document.getElementById('metrics-strip').classList.remove('show');
+  document.getElementById('progress-wrap').classList.remove('visible');
+  document.getElementById('metric-fail-wrap').style.display='none';
   logBox.innerHTML='<p class="sys">&gt; awaiting job…</p>';
-  clearForecast();
-  logOffset=0; setReadonly(false); syncButtons();
+  clearForecast(); logOffset=0; setReadonly(false); syncButtons();
   populateModelDropdown();
 }
 
@@ -1172,63 +1303,57 @@ async function loadJobDetail(jobId){
       fetch(`${BACKEND}/api/jobs/${jobId}`).then(r=>r.json()),
       fetch(`${BACKEND}/api/jobs/${jobId}/log`).then(r=>r.json()),
     ]);
-    modelSel.setItems([], job.model_name || "—");
-    modelSel.setLabelText(job.model_name || "—");
-    datasetSel.setItems([], job.dataset || "—");
-    datasetSel.setLabelText(job.dataset || "—");
-    document.getElementById("extra-args").value=job.extra_args||"";
-    document.getElementById("model-name").textContent=job.model_name||"—";
+    modelSel.setItems([],job.model_name||"—"); modelSel.setLabelText(job.model_name||"—");
+    datasetSel.setItems([],job.dataset||"—"); datasetSel.setLabelText(job.dataset||"—");
+    document.getElementById('extra-args').value=job.extra_args||'';
+    document.getElementById('model-name').textContent=job.model_name||'—';
     if(job.train_script||job.run_script){
-      document.getElementById("info-train").textContent=job.train_script||"—";
-      document.getElementById("info-run").textContent=job.run_script||"—";
-      document.getElementById("info-dparam").textContent=job.dataset_param||"—";
-      document.getElementById("model-info").classList.add("show");
+      document.getElementById('info-train').textContent=job.train_script||'—';
+      document.getElementById('info-run').textContent=job.run_script||'—';
+      document.getElementById('info-dparam').textContent=job.dataset_param||'—';
+      document.getElementById('model-info').classList.add('show');
     }
-    const statusEl=document.getElementById("metric-status");
+    const statusEl=document.getElementById('metric-status');
     statusEl.textContent=job.status;
     statusEl.style.color=job.status==="done"?"var(--success)":job.status==="running"?"var(--warn)":"var(--error)";
-    document.getElementById("metric-duration").textContent=fmtMs(job.duration_ms);
-    if(job.fail_reason){ document.getElementById("metric-fail").textContent=job.fail_reason; document.getElementById("metric-fail-wrap").style.display="" }
-    else { document.getElementById("metric-fail-wrap").style.display="none" }
-    document.getElementById("metrics-strip").classList.add("show");
+    document.getElementById('metric-duration').textContent=fmtMs(job.duration_ms);
+    if(job.fail_reason){document.getElementById('metric-fail').textContent=job.fail_reason;document.getElementById('metric-fail-wrap').style.display=''}
+    else{document.getElementById('metric-fail-wrap').style.display='none'}
+    document.getElementById('metrics-strip').classList.add('show');
     logOffset=logRes.size||0; renderFullLog(logRes.log);
-    if(job.status==="running"){ document.getElementById("readonly-banner").classList.remove("show"); document.getElementById("job-view-title").textContent=`Job #${jobId} — live`; clearForecast(); startPoller(jobId) }
-    else{ document.getElementById("readonly-banner").classList.add("show"); stopPoller(); job.status==="done" ? tryLoadForecast(jobId) : clearForecast() }
+    if(job.status==="running"){document.getElementById('readonly-banner').classList.remove('show');document.getElementById('main-title').textContent=`Job #${jobId} — live`;clearForecast();startPoller(jobId)}
+    else{document.getElementById('readonly-banner').classList.add('show');stopPoller();job.status==="done"?tryLoadForecast(jobId):clearForecast()}
     syncButtons();
-  }catch(_){ logBox.innerHTML='<p class="fail">&gt; could not load job</p>' }
+  }catch(_){logBox.innerHTML='<p class="fail">&gt; could not load job</p>'}
 }
 
 // ── train / run / cancel ──────────────────────────────────────────────────────
 document.getElementById("btn-train").addEventListener("click",async()=>{
   if(!modelValid||!selectedModelId)return;
   try{
-    const res=await fetch(`${BACKEND}/api/train`,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({modelId:selectedModelId,datasetId:selectedDatasetId||undefined,extraArgs:document.getElementById("extra-args").value.trim()})});
+    const res=await fetch(`${BACKEND}/api/train`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({modelId:selectedModelId,datasetId:selectedDatasetId||undefined,extraArgs:document.getElementById("extra-args").value.trim()})});
     const data=await res.json();
     if(!res.ok){toast("error","Failed to start",data.error);return}
-    document.getElementById("job-view-title").textContent=`Job #${data.jobId} — live`;
-    document.getElementById("job-view-id").textContent=`#${data.jobId}`;
-    document.getElementById("metrics-strip").classList.remove("show");
-    document.getElementById("progress-wrap").classList.remove("visible");
-    clearForecast();
-    logBox.innerHTML='<p class="sys">&gt; starting…</p>';
-    startPoller(data.jobId);
+    document.getElementById('main-title').textContent=`Job #${data.jobId} — live`;
+    document.getElementById('job-view-title').textContent=`Job #${data.jobId} — live`;
+    document.getElementById('job-view-id').textContent=`#${data.jobId}`;
+    document.getElementById('metrics-strip').classList.remove('show');
+    document.getElementById('progress-wrap').classList.remove('visible');
+    clearForecast(); logBox.innerHTML='<p class="sys">&gt; starting…</p>'; startPoller(data.jobId);
   }catch(e){toast("error","Error",e.message)}
 });
 document.getElementById("btn-run").addEventListener("click",async()=>{
   if(!modelValid||!selectedModelId)return;
   try{
-    const res=await fetch(`${BACKEND}/api/run`,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({modelId:selectedModelId,datasetId:selectedDatasetId||undefined,extraArgs:document.getElementById("extra-args").value.trim()})});
+    const res=await fetch(`${BACKEND}/api/run`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({modelId:selectedModelId,datasetId:selectedDatasetId||undefined,extraArgs:document.getElementById("extra-args").value.trim()})});
     const data=await res.json();
     if(!res.ok){toast("error","Failed to start",data.error);return}
-    document.getElementById("job-view-title").textContent=`Job #${data.jobId} — live`;
-    document.getElementById("job-view-id").textContent=`#${data.jobId}`;
-    document.getElementById("metrics-strip").classList.remove("show");
-    document.getElementById("progress-wrap").classList.remove("visible");
-    clearForecast();
-    logBox.innerHTML='<p class="sys">&gt; starting…</p>';
-    startPoller(data.jobId);
+    document.getElementById('main-title').textContent=`Job #${data.jobId} — live`;
+    document.getElementById('job-view-title').textContent=`Job #${data.jobId} — live`;
+    document.getElementById('job-view-id').textContent=`#${data.jobId}`;
+    document.getElementById('metrics-strip').classList.remove('show');
+    document.getElementById('progress-wrap').classList.remove('visible');
+    clearForecast(); logBox.innerHTML='<p class="sys">&gt; starting…</p>'; startPoller(data.jobId);
   }catch(e){toast("error","Error",e.message)}
 });
 document.getElementById("btn-cancel").addEventListener("click",async()=>{
@@ -1236,12 +1361,134 @@ document.getElementById("btn-cancel").addEventListener("click",async()=>{
   try{ await fetch(`${BACKEND}/api/cancel`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:viewingJobId})}) }
   catch(e){toast("error","Cancel failed",e.message)}
 });
+document.getElementById("btn-pipeline").addEventListener("click", async () => {
+  if (!modelValid || !selectedModelId) return;
+  const btn = document.getElementById("btn-pipeline");
+  btn.disabled = true;
+  btn.textContent = "⬡ Starting…";
+  try {
+    const res = await fetch(`${BACKEND}/api/pipeline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        modelId:   selectedModelId,
+        datasetId: selectedDatasetId || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast("error", "Pipeline failed to start", data.error);
+    } else {
+      toast("done", "Pipeline triggered", `DAG run: ${data.dagRunId} — monitor at localhost:8080`);
+    }
+  } catch (e) {
+    toast("error", "Could not reach server", e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "⬡ Pipeline";
+  }
+});
+
+// ── schedules ─────────────────────────────────────────────────────────────────
+async function loadSchedules(){
+  try{
+    const rows=await fetch(`${BACKEND}/api/schedules`).then(r=>r.json());
+    const tbody=document.getElementById('sched-tbody');
+    document.getElementById('sched-count').textContent=`${rows.length} schedule${rows.length!==1?'s':''}`;
+    if(!rows.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state">No schedules yet. Add one above.</div></td></tr>`;return}
+    tbody.innerHTML=rows.map(s=>{
+      const lastRun=s.last_run?fmtDate(s.last_run):'—';
+      const st=s.last_status||'never';
+      const stClass=['done','running','failed'].includes(st)?st:'never';
+      const stLabel=st==='never'?'never run':st;
+      return `<tr>
+        <td>${s.id}</td>
+        <td class="name-cell">${esc(s.model_name||s.model_id)}</td>
+        <td>${esc(s.dataset_name||s.dataset_id)}</td>
+        <td>
+          ${cronToHuman(s.cron_time)}
+          ${s.train_extra_args?`<br><span style="color:var(--text-dim);font-size:10px">train: ${esc(s.train_extra_args)}</span>`:''}
+          ${s.run_extra_args?`<br><span style="color:var(--text-dim);font-size:10px">run: ${esc(s.run_extra_args)}</span>`:''}
+        </td>
+        <td>${lastRun}</td>
+        <td><span class="last-status-badge ${stClass}">${stLabel}</span></td>
+        <td>
+          <div class="sched-actions">
+            <button class="run-now-btn" onclick="triggerSchedule(${s.id})">▶ Run now</button>
+            <button class="toggle-btn ${s.enabled?'on':'off'}" onclick="toggleSchedule(${s.id},${s.enabled?0:1})">${s.enabled?'Enabled':'Disabled'}</button>
+            <button class="btn-del" onclick="deleteSchedule(${s.id})" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){document.getElementById('sched-tbody').innerHTML=`<tr><td colspan="7"><div class="empty-state">Could not load schedules.</div></td></tr>`}
+}
+
+async function populateScheduleDropdowns(){
+  const [models,datasets]=await Promise.all([
+    fetch(`${BACKEND}/api/models`).then(r=>r.json()),
+    fetch(`${BACKEND}/api/datasets`).then(r=>r.json()),
+  ]);
+  document.getElementById('sched-model-sel').innerHTML=`<option value="">— model —</option>`+models.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  document.getElementById('sched-dataset-sel').innerHTML=`<option value="">— dataset —</option>`+datasets.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+}
+
+async function addSchedule(){
+  const modelId=document.getElementById('sched-model-sel').value;
+  const datasetId=document.getElementById('sched-dataset-sel').value;
+  const hour12=parseInt(document.getElementById('sched-hour').value);
+  const minute=document.getElementById('sched-minute').value;
+  const ampm=document.getElementById('sched-ampm').value;
+  const days=document.getElementById('sched-days').value;
+  const trainExtraArgs=document.getElementById('sched-train-args').value.trim();
+  const runExtraArgs=document.getElementById('sched-run-args').value.trim();
+  if(!modelId){toast("error","Select a model","");return}
+  if(!datasetId){toast("error","Select a dataset","");return}
+  if(!hour12){toast("error","Select an hour","");return}
+  if(minute===""){toast("error","Select a minute","");return}
+  let hour24;
+  if(ampm==='am') hour24=hour12===12?0:hour12;
+  else hour24=hour12===12?12:hour12+12;
+  const cronTime=`${minute} ${hour24} * * ${days}`;
+  const r=await fetch(`${BACKEND}/api/schedules`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({modelId:parseInt(modelId),datasetId:parseInt(datasetId),cronTime,trainExtraArgs,runExtraArgs})});
+  const d=await r.json();
+  if(!r.ok){toast("error","Could not add schedule",d.error);return}
+  document.getElementById('sched-hour').value='';
+  document.getElementById('sched-minute').value='';
+  document.getElementById('sched-ampm').value='am';
+  document.getElementById('sched-train-args').value='';
+  document.getElementById('sched-run-args').value='';
+  document.getElementById('sched-model-sel').value='';
+  document.getElementById('sched-dataset-sel').value='';
+  toast("done","Schedule added",`${d.model_name} × ${d.dataset_name} @ ${cronToHuman(d.cron_time)}`);
+  loadSchedules();
+}
+
+async function toggleSchedule(id,enabled){
+  const r=await fetch(`${BACKEND}/api/schedules/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled})});
+  if(!r.ok){toast("error","Could not update schedule","");return}
+  toast("done",enabled?"Schedule enabled":"Schedule disabled",""); loadSchedules();
+}
+
+async function deleteSchedule(id){
+  await fetch(`${BACKEND}/api/schedules/${id}`,{method:"DELETE"});
+  toast("warn","Schedule deleted",""); loadSchedules();
+}
+
+async function triggerSchedule(id){
+  const r=await fetch(`${BACKEND}/api/schedules/${id}/run`,{method:"POST"});
+  if(!r.ok){toast("error","Could not trigger pipeline","");return}
+  toast("done","Pipeline triggered","Train → Run → sMAPE running in background");
+  setTimeout(loadSchedules,2000);
+}
 
 // ── boot ──────────────────────────────────────────────────────────────────────
 window.addEventListener("load",()=>{
   const p=new URLSearchParams(location.search);
-  if(p.has("job")) showView("job",parseInt(p.get("job")));
-  else if(p.has("manage")) showView("manage");
+  if(p.has("job"))           showView("job",parseInt(p.get("job")));
+  else if(p.has("models"))   showView("models");
+  else if(p.has("datasets")) showView("datasets");
+  else if(p.has("schedules"))showView("schedules");
   else showView("list");
 });
 </script>
