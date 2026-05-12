@@ -5,9 +5,9 @@ new rows to energy_consumption in data-db.
 
 All config from environment — nothing hardcoded.
 Key env vars (set in docker-compose via .env):
-  EIA_API_KEY      from eia.gov/opendata
-  DATA_DB_CONN     SQLAlchemy conn string for data Postgres
-  EIA_INGEST_CRON  cron schedule (default: 30 8 * * *)
+EIA_API_KEY      from eia.gov/opendata
+DATA_DB_CONN     SQLAlchemy conn string for data Postgres
+EIA_INGEST_CRON  cron schedule (default: 30 8 * * *)
 """
 import os
 import requests
@@ -107,7 +107,7 @@ with DAG(
     default_args=default_args,
     description="Fetch latest EIA hourly electricity demand → append to energy_consumption",
     schedule_interval=os.environ.get("EIA_INGEST_CRON", "30 8 * * *"),
-    start_date=datetime(2026, 5, 10),
+    start_date=datetime(2026, 5, 11),
     catchup=False,
     tags=["launcher", "ingest", "eia"],
 ) as dag:

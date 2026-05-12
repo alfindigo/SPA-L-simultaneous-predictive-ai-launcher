@@ -1,18 +1,18 @@
 """
 dag_launcher_pipeline.py
 Flow:
-  1. Pull data from Postgres → export CSV → register in launcher
-  2. If Postgres unreachable → fall back to GluonTS built-in
-  3. Train → poll until done
-  4. Run   → poll until done
-  5. Report metrics to /api/accuracy
+1. Pull data from Postgres → export CSV → register in launcher
+2. If Postgres unreachable → fall back to GluonTS built-in
+3. Train → poll until done
+4. Run   → poll until done
+5. Report metrics to /api/accuracy
 
 All config comes from environment variables — nothing hardcoded.
 Key env vars (set in docker-compose via .env):
-  LAUNCHER_URL        e.g. http://host.docker.internal:5557
-  DATA_DB_CONN        SQLAlchemy conn string for data Postgres
-  HOST_DAGS_PATH      Host-side path that maps to /opt/airflow/dags
-  DEFAULT_MODEL_NAME  Model to use for scheduled (non-manual) runs
+LAUNCHER_URL        e.g. http://host.docker.internal:5557
+DATA_DB_CONN        SQLAlchemy conn string for data Postgres
+HOST_DAGS_PATH      Host-side path that maps to /opt/airflow/dags
+DEFAULT_MODEL_NAME  Model to use for scheduled (non-manual) runs
 """
 import os
 import re
@@ -195,7 +195,7 @@ with DAG(
     default_args=default_args,
     description="Postgres → CSV → register → train → run → report",
     schedule_interval=os.environ.get("PIPELINE_CRON", "0 9 * * *"),
-    start_date=datetime(2026, 5, 10),
+    start_date=datetime(2026, 5, 11),
     catchup=False,
     tags=["launcher", "timeseries"],
     params={
