@@ -130,7 +130,7 @@
     .jobs-table{width:100%;border-collapse:collapse}
     .jobs-table thead tr{border-bottom:1px solid var(--border)}
     .jobs-table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
-      color:var(--text-dim);padding:10px 14px;text-align:left;font-weight:400;white-space:nowrap}
+      color:var(--accent);padding:10px 14px;text-align:left;font-weight:400;white-space:nowrap}
     .jobs-table td{padding:12px 14px;border-bottom:1px solid rgba(30,37,48,0.6);font-family:'DM Mono',monospace;
       font-size:11px;color:var(--text-muted);vertical-align:middle}
     .jobs-table tbody tr{cursor:pointer;transition:background 0.1s}
@@ -527,26 +527,26 @@
       <button class="btn-collapse" id="btn-collapse" onclick="toggleSidebar()" title="Toggle sidebar">⇆</button>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-item active" id="nav-list" onclick="showView('list')">
-        <span class="nav-icon">H</span>
-        <span class="nav-label">Job History</span>
-      </button>
       <button class="nav-item" id="nav-models" onclick="showView('models')">
-        <span class="nav-icon">M</span>
-        <span class="nav-label">Models</span>
-      </button>
-      <button class="nav-item" id="nav-datasets" onclick="showView('datasets')">
-        <span class="nav-icon">D</span>
-        <span class="nav-label">Datasets</span>
-      </button>
-      <button class="nav-item" id="nav-schedules" onclick="showView('schedules')">
-        <span class="nav-icon">S</span>
-        <span class="nav-label">Schedules</span>
-      </button>
-      <button class="nav-item" id="nav-pipeline" onclick="showView('pipeline')">
-        <span class="nav-icon">P</span>
-        <span class="nav-label">Pipeline History</span>
-      </button>
+      <span class="nav-icon">M</span>
+      <span class="nav-label">Models</span>
+    </button>
+    <button class="nav-item" id="nav-datasets" onclick="showView('datasets')">
+      <span class="nav-icon">D</span>
+      <span class="nav-label">Datasets</span>
+    </button>
+    <button class="nav-item" id="nav-list" onclick="showView('list')">
+      <span class="nav-icon">H</span>
+      <span class="nav-label">Job History</span>
+    </button>
+    <button class="nav-item" id="nav-schedules" onclick="showView('schedules')">
+      <span class="nav-icon">S</span>
+      <span class="nav-label">Schedules</span>
+    </button>
+    <button class="nav-item" id="nav-pipeline" onclick="showView('pipeline')">
+      <span class="nav-icon">P</span>
+      <span class="nav-label">Schedule Log</span>
+    </button>
     </nav>
     <div class="sidebar-footer">
       <div class="status-row">
@@ -820,7 +820,7 @@
       <div class="view" id="view-pipeline">
         <div class="ph-toolbar">
           <div class="ph-toolbar-left">
-            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted)">Pipeline History</span>
+            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted)">Schedule Log</span>
             <span class="ph-toolbar-subtitle">Airflow · launcher_pipeline DAG · energy_data</span>
           </div>
           <button class="btn-refresh-sm" onclick="loadPipelineHistory()">↻ Refresh</button>
@@ -1373,7 +1373,7 @@ function tryLoadForecast(jobId){ const panel=document.getElementById('forecast-p
 function clearForecast(){ const panel=document.getElementById('forecast-panel'),img=document.getElementById('forecast-img'); panel.classList.remove('show'); img.removeAttribute('src') }
 
 // ── view switching ────────────────────────────────────────────────────────────
-const VIEW_TITLES={list:'Job History',job:'Launcher',models:'Models',datasets:'Datasets',schedules:'Schedules',pipeline:'Pipeline History'};
+const VIEW_TITLES={list:'Job History',job:'Launcher',models:'Models',datasets:'Datasets',schedules:'Schedules',pipeline:'Schedule Log'};
 const NAV_IDS={list:'nav-list',job:'nav-newjob',models:'nav-models',datasets:'nav-datasets',schedules:'nav-schedules',pipeline:'nav-pipeline'};
 
 function showView(which,jobId=null){
